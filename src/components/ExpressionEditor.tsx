@@ -140,6 +140,7 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 		const handleDrop = useCallback(
 			(event: React.DragEvent) => {
 				event.preventDefault();
+				event.stopPropagation(); // Prevent CodeMirror's default drop handler
 
 				const dragValue = event.dataTransfer?.getData('text/plain');
 
