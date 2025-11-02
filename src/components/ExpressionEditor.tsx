@@ -85,11 +85,46 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 					}),
 					inputTheme({ isReadOnly: readOnly, rows }),
 					history(),
-					dropCursor(),
+					dropCursor(), // Native CodeMirror drop cursor - provides visual feedback
 					expressionCloseBrackets(),
 					// Only enable line wrapping for multi-line inputs
 					...(isSingleLine ? [] : [EditorView.lineWrapping]),
 					infoBoxTooltips(),
+					// Handle drop at CodeMirror level - do the insertion here with direct view access
+					EditorView.domEventHandlers({
+						drop: (event, view) => {
+							console.log('[CODEMIRROR] domEventHandler.drop called', {
+								clientX: event.clientX,
+								clientY: event.clientY,
+								target: event.target,
+							});
+
+							event.preventDefault();
+							event.stopPropagation();
+
+							const value = event.dataTransfer?.getData('text/plain');
+							if (!value) {
+								console.log('[CODEMIRROR] No value to drop');
+								return true;
+							}
+
+							// Get position HERE where we have guaranteed view access
+							const pos = view.posAtCoords({ x: event.clientX, y: event.clientY }, false);
+							console.log('[CODEMIRROR] Position at coords:', pos);
+
+							if (pos !== null) {
+								console.log('[CODEMIRROR] Dispatching insert at', pos);
+								view.dispatch({
+									changes: { from: pos, insert: value },
+									selection: { anchor: pos + value.length },
+									userEvent: 'input.drop',
+								});
+								console.log('[CODEMIRROR] After insert, doc:', view.state.doc.toString());
+							}
+
+							return true; // We handled it
+						},
+					}),
 				];
 			},
 			[readOnly, rows],
@@ -132,35 +167,49 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 
 		// Handle drag over
 		const handleDragOver = useCallback((event: React.DragEvent) => {
+			console.log('[REACT-DRAG] handleDragOver', {
+				clientX: event.clientX,
+				clientY: event.clientY,
+			});
 			event.preventDefault();
 			event.dataTransfer.dropEffect = 'copy';
 		}, []);
 
-		// Handle drop
+		// Handle drop - This is a backup handler, CodeMirror handler should handle it first
 		const handleDrop = useCallback(
 			(event: React.DragEvent) => {
+				console.log('[REACT-DROP] handleDrop START', {
+					clientX: event.clientX,
+					clientY: event.clientY,
+					target: event.target,
+					currentTarget: event.currentTarget,
+				});
+
 				event.preventDefault();
-				event.stopPropagation(); // Prevent CodeMirror's default drop handler
+				event.stopPropagation();
 
 				const dragValue = event.dataTransfer?.getData('text/plain');
+				console.log('[REACT-DROP] Got value:', dragValue);
 
 				if (!dragValue || !editor) {
+					console.log('[REACT-DROP] Early return - no value or no editor');
 					return;
 				}
 
 				// Get the drop position
-				const pos = editor.posAtCoords(
-					{ x: event.clientX, y: event.clientY },
-					false,
-				);
+				const pos = editor.posAtCoords({ x: event.clientX, y: event.clientY }, false);
+				console.log('[REACT-DROP] Drop position:', pos);
+				console.log('[REACT-DROP] Current doc content:', editor.state.doc.toString());
 
 				if (pos !== null) {
 					// Insert the value at the drop position
+					console.log('[REACT-DROP] Dispatching insert at position', pos);
 					editor.dispatch({
 						changes: { from: pos, insert: dragValue },
 						selection: { anchor: pos + dragValue.length },
 						userEvent: 'input.drop',
 					});
+					console.log('[REACT-DROP] After dispatch, doc content:', editor.state.doc.toString());
 
 					setTimeout(() => editor.focus());
 				}
