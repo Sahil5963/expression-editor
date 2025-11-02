@@ -3,7 +3,11 @@ import { EditorView, Decoration } from '@codemirror/view';
 import { StateField, StateEffect } from '@codemirror/state';
 import { tags } from '@lezer/highlight';
 import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
-import { captureException } from '@sentry/vue';
+
+// Stub for Sentry - just log to console in standalone mode
+const captureException = (error: Error) => {
+	console.error('[Error]', error);
+};
 
 import type {
 	ColoringStateEffect,
