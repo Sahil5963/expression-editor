@@ -84,12 +84,10 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 	// Empty or just starting - show all root variables
 	if (text === '' || context.explicit) {
 		const rootCompletions: Completion[] = Object.keys(mockData).map(key => {
-			// Remove leading $ if it exists in the key
-			const cleanKey = key.startsWith('$') ? key.substring(1) : key;
 			return {
-				label: cleanKey,
+				label: key,
 				type: 'variable',
-				info: `Root variable: ${cleanKey}`,
+				info: `Root variable: ${key}`,
 			};
 		});
 
@@ -111,8 +109,7 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 		console.log('🔎 Nested lookup:', { rootKey, path, incomplete });
 
 		// Get the object we're completing from
-		// Try with $ prefix first, then without
-		let targetObj = mockData[`$${rootKey}`] || mockData[rootKey];
+		let targetObj = mockData[rootKey];
 
 		if (path) {
 			targetObj = getNestedValue(targetObj, path);
@@ -145,16 +142,11 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 	// Typed "json" (no dot yet) - filter root completions
 	if (text.length > 0) {
 		const rootCompletions: Completion[] = Object.keys(mockData)
-			.map(key => {
-				// Remove leading $ if it exists in the key
-				const cleanKey = key.startsWith('$') ? key.substring(1) : key;
-				return { cleanKey, originalKey: key };
-			})
-			.filter(({ cleanKey }) => cleanKey.toLowerCase().startsWith(text.toLowerCase()))
-			.map(({ cleanKey }) => ({
-				label: cleanKey,
+			.filter(key => key.toLowerCase().startsWith(text.toLowerCase()))
+			.map(key => ({
+				label: key,
 				type: 'variable',
-				info: `Root variable: ${cleanKey}`,
+				info: `Root variable: ${key}`,
 			}));
 
 		console.log('✅ Showing filtered root completions:', rootCompletions.map(c => c.label));

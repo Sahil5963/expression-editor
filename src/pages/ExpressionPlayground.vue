@@ -63,7 +63,7 @@ const editorDemos: EditorDemo[] = [
 		id: 'inline',
 		title: 'Inline Expression Editor',
 		description: 'Compact single-line editor for quick expressions',
-		defaultValue: '{{ $json.name }}',
+		defaultValue: '{{json.name}}',
 		rows: 1,
 		isReadOnly: false,
 	},
@@ -71,7 +71,7 @@ const editorDemos: EditorDemo[] = [
 		id: 'multiline',
 		title: 'Multi-line Expression Editor',
 		description: 'Full-featured editor with autocomplete, syntax highlighting, and drag-drop',
-		defaultValue: '{{ $json.address.city }}\n{{ $json.email }}\n{{ $json.age }}',
+		defaultValue: '{{json.address.city}}\n{{json.email}}\n{{json.age}}',
 		rows: 5,
 		isReadOnly: false,
 	},
@@ -79,7 +79,7 @@ const editorDemos: EditorDemo[] = [
 		id: 'complex',
 		title: 'Complex Expression Editor',
 		description: 'For advanced expressions with method calls and operations',
-		defaultValue: '{{ $json.orders.map(order => order.product).join(", ") }}',
+		defaultValue: '{{json.orders.map(order => order.product).join(", ")}}',
 		rows: 3,
 		isReadOnly: false,
 	},
@@ -87,7 +87,7 @@ const editorDemos: EditorDemo[] = [
 		id: 'readonly',
 		title: 'Read-only Expression Display',
 		description: 'Display-only mode for showing computed or locked expressions',
-		defaultValue: '{{ $json.metadata.tags.filter(tag => tag !== "premium") }}',
+		defaultValue: '{{json.metadata.tags.filter(tag => tag !== "premium")}}',
 		rows: 2,
 		isReadOnly: true,
 	},
@@ -96,7 +96,7 @@ const editorDemos: EditorDemo[] = [
 		title: 'Large Text Area',
 		description: 'For complex multi-line expressions with lots of space',
 		defaultValue: `{{
-  const user = $json;
+  const user = json;
   const fullAddress = \`\${user.address.street}, \${user.address.city}, \${user.address.state} \${user.address.zipCode}\`;
   return fullAddress;
 }}`,
@@ -119,7 +119,7 @@ const draggedItem = ref<string | null>(null);
 // Comprehensive autocomplete data with nested structures
 const autocompleteData = computed((): IDataObject => {
 	const data = {
-	$json: {
+	json: {
 		name: 'John Doe',
 		email: 'john@example.com',
 		age: 30,
@@ -183,7 +183,7 @@ const autocompleteData = computed((): IDataObject => {
 			lastOrderDate: '2024-01-22',
 		},
 	},
-	$input: {
+	input: {
 		first: () => ({ data: 'First item' }),
 		last: () => ({ data: 'Last item' }),
 		all: () => [{ data: 'Item 1' }, { data: 'Item 2' }],
@@ -197,7 +197,7 @@ const autocompleteData = computed((): IDataObject => {
 			},
 		},
 	},
-	$prevNode: {
+	prevNode: {
 		name: 'HTTP Request',
 		outputIndex: 0,
 		runIndex: 0,
@@ -212,7 +212,7 @@ const autocompleteData = computed((): IDataObject => {
 			},
 		},
 	},
-	$execution: {
+	execution: {
 		id: '123e4567-e89b-12d3-a456-426614174000',
 		mode: 'manual',
 		startedAt: '2024-01-15T10:00:00Z',
@@ -226,7 +226,7 @@ const autocompleteData = computed((): IDataObject => {
 			},
 		},
 	},
-	$workflow: {
+	workflow: {
 		id: 'workflow-123',
 		name: 'My Sample Workflow',
 		active: true,
@@ -237,7 +237,7 @@ const autocompleteData = computed((): IDataObject => {
 			saveDataSuccessExecution: 'all',
 		},
 	},
-	$vars: {
+	vars: {
 		API_KEY: 'sk_test_1234567890',
 		BASE_URL: 'https://api.example.com',
 		MAX_RETRIES: 3,
@@ -255,8 +255,8 @@ const autocompleteData = computed((): IDataObject => {
 			},
 		},
 	},
-	$now: new Date().toISOString(),
-	$today: new Date().toISOString().split('T')[0],
+	now: new Date().toISOString(),
+	today: new Date().toISOString().split('T')[0],
 	};
 	console.log('Autocomplete data:', data);
 	return data;
@@ -264,18 +264,18 @@ const autocompleteData = computed((): IDataObject => {
 
 // Draggable variables
 const draggableVariables = [
-	{ path: '$json.name', description: 'User name' },
-	{ path: '$json.email', description: 'User email' },
-	{ path: '$json.address.city', description: 'City' },
-	{ path: '$json.address.coordinates.lat', description: 'Latitude' },
-	{ path: '$json.orders[0].product', description: 'First order product' },
-	{ path: '$json.metadata.tags', description: 'User tags array' },
-	{ path: '$json.stats.totalSpent', description: 'Total spent' },
-	{ path: '$prevNode.json.body.data.userId', description: 'Previous node user ID' },
-	{ path: '$execution.id', description: 'Execution ID' },
-	{ path: '$workflow.name', description: 'Workflow name' },
-	{ path: '$vars.API_KEY', description: 'API Key' },
-	{ path: '$now', description: 'Current timestamp' },
+	{ path: 'json.name', description: 'User name' },
+	{ path: 'json.email', description: 'User email' },
+	{ path: 'json.address.city', description: 'City' },
+	{ path: 'json.address.coordinates.lat', description: 'Latitude' },
+	{ path: 'json.orders[0].product', description: 'First order product' },
+	{ path: 'json.metadata.tags', description: 'User tags array' },
+	{ path: 'json.stats.totalSpent', description: 'Total spent' },
+	{ path: 'prevNode.json.body.data.userId', description: 'Previous node user ID' },
+	{ path: 'execution.id', description: 'Execution ID' },
+	{ path: 'workflow.name', description: 'Workflow name' },
+	{ path: 'vars.API_KEY', description: 'API Key' },
+	{ path: 'now', description: 'Current timestamp' },
 ];
 
 // Example expressions by category
@@ -283,44 +283,44 @@ const exampleExpressions = [
 	{
 		category: 'Basic Access',
 		examples: [
-			{ label: 'Simple property', value: '{{ $json.name }}' },
-			{ label: 'Nested property', value: '{{ $json.address.city }}' },
-			{ label: 'Deep nesting', value: '{{ $json.address.coordinates.lat }}' },
-			{ label: 'Array access', value: '{{ $json.orders[0].product }}' },
+			{ label: 'Simple property', value: '{{json.name}}' },
+			{ label: 'Nested property', value: '{{json.address.city}}' },
+			{ label: 'Deep nesting', value: '{{json.address.coordinates.lat}}' },
+			{ label: 'Array access', value: '{{json.orders[0].product}}' },
 		],
 	},
 	{
 		category: 'String Operations',
 		examples: [
-			{ label: 'String method', value: '{{ $json.email.includes("@") }}' },
-			{ label: 'Template literal', value: '{{ `Hello, ${$json.name}!` }}' },
-			{ label: 'String concat', value: '{{ $json.address.city + ", " + $json.address.state }}' },
-			{ label: 'Uppercase', value: '{{ $json.name.toUpperCase() }}' },
+			{ label: 'String method', value: '{{json.email.includes("@")}}' },
+			{ label: 'Template literal', value: '{{`Hello, ${json.name}!`}}' },
+			{ label: 'String concat', value: '{{json.address.city + ", " + json.address.state}}' },
+			{ label: 'Uppercase', value: '{{json.name.toUpperCase()}}' },
 		],
 	},
 	{
 		category: 'Array Operations',
 		examples: [
-			{ label: 'Array length', value: '{{ $json.orders.length }}' },
-			{ label: 'Array join', value: '{{ $json.metadata.tags.join(", ") }}' },
-			{ label: 'Array map', value: '{{ $json.orders.map(o => o.product) }}' },
-			{ label: 'Array filter', value: '{{ $json.orders.filter(o => o.price > 50) }}' },
+			{ label: 'Array length', value: '{{json.orders.length}}' },
+			{ label: 'Array join', value: '{{json.metadata.tags.join(", ")}}' },
+			{ label: 'Array map', value: '{{json.orders.map(o => o.product)}}' },
+			{ label: 'Array filter', value: '{{json.orders.filter(o => o.price > 50)}}' },
 		],
 	},
 	{
 		category: 'Conditional Logic',
 		examples: [
-			{ label: 'Ternary operator', value: '{{ $json.age > 18 ? "Adult" : "Minor" }}' },
-			{ label: 'Boolean check', value: '{{ $json.verified ? "✓ Verified" : "✗ Not verified" }}' },
-			{ label: 'Null coalescing', value: '{{ $json.middleName || "N/A" }}' },
+			{ label: 'Ternary operator', value: '{{json.age > 18 ? "Adult" : "Minor"}}' },
+			{ label: 'Boolean check', value: '{{json.verified ? "✓ Verified" : "✗ Not verified"}}' },
+			{ label: 'Null coalescing', value: '{{json.middleName || "N/A"}}' },
 		],
 	},
 	{
 		category: 'Math Operations',
 		examples: [
-			{ label: 'Sum', value: '{{ $json.stats.totalSpent + 100 }}' },
-			{ label: 'Average', value: '{{ $json.stats.totalSpent / $json.stats.totalOrders }}' },
-			{ label: 'Percentage', value: '{{ ($json.orders.length / 10 * 100).toFixed(2) + "%" }}' },
+			{ label: 'Sum', value: '{{json.stats.totalSpent + 100}}' },
+			{ label: 'Average', value: '{{json.stats.totalSpent / json.stats.totalOrders}}' },
+			{ label: 'Percentage', value: '{{(json.orders.length / 10 * 100).toFixed(2) + "%"}}' },
 		],
 	},
 	{
@@ -329,13 +329,13 @@ const exampleExpressions = [
 			{
 				label: 'Multi-line calculation',
 				value: `{{
-  const total = $json.orders.reduce((sum, order) => sum + order.price * order.quantity, 0);
+  const total = json.orders.reduce((sum, order) => sum + order.price * order.quantity, 0);
   return total.toFixed(2);
 }}`,
 			},
 			{
 				label: 'Formatted address',
-				value: '{{ `${$json.address.street}\\n${$json.address.city}, ${$json.address.state} ${$json.address.zipCode}\\n${$json.address.country}` }}',
+				value: '{{`${json.address.street}\\n${json.address.city}, ${json.address.state} ${json.address.zipCode}\\n${json.address.country}`}}',
 			},
 		],
 	},
@@ -365,7 +365,7 @@ const handleDragStart = (event: DragEvent, item: string) => {
 	draggedItem.value = item;
 	// Set the data to be transferred
 	event.dataTransfer!.effectAllowed = 'copy';
-	event.dataTransfer!.setData('text/plain', `{{ ${item} }}`);
+	event.dataTransfer!.setData('text/plain', `{{${item}}}`);
 };
 
 const handleDragEnd = () => {
@@ -373,7 +373,7 @@ const handleDragEnd = () => {
 };
 
 // Helper to format variable path with expression syntax
-const formatExpression = (path: string) => `{{ ${path} }}`;
+const formatExpression = (path: string) => `{{${path}}}`;
 </script>
 
 <template>
@@ -421,7 +421,7 @@ const formatExpression = (path: string) => `{{ ${path} }}`;
 				<section class="editors-section">
 					<h2>Editor Types</h2>
 					<p class="section-hint">
-						💡 <strong>Standalone Expression Editor</strong> with custom autocomplete! Type <code v-text="'{{ $'"></code> to see root variables, or <code v-text="'{{ $json.'"></code> for nested properties.
+						💡 <strong>Standalone Expression Editor</strong> with custom autocomplete! Type <code v-text="'{{j'"></code> to see root variables, or <code v-text="'{{json.'"></code> for nested properties.
 						Features: syntax highlighting, validation, and full autocomplete from mock data!
 					</p>
 
@@ -507,12 +507,12 @@ const formatExpression = (path: string) => `{{ ${path} }}`;
 					<div class="features-grid">
 						<div class="feature-card">
 							<h3>🔍 Autocomplete</h3>
-							<p>Type <code v-text="'{{ $'"></code> to see all available variables</p>
+							<p>Type <code v-text="'{{j'"></code> to see all available variables</p>
 							<p>Navigate nested objects with dot notation</p>
 						</div>
 						<div class="feature-card">
 							<h3>🎨 Syntax Highlighting</h3>
-							<p>Expression syntax <code v-text="'{{ ... }}'"></code> is highlighted</p>
+							<p>Expression syntax <code v-text="'{{...}}'"></code> is highlighted</p>
 							<p>JavaScript code within expressions is syntax-colored</p>
 						</div>
 						<div class="feature-card">
@@ -548,7 +548,8 @@ const formatExpression = (path: string) => `{{ ${path} }}`;
 
 <style lang="scss" scoped>
 .expression-playground {
-	min-height: 100vh;
+	height: 100vh;
+	overflow: hidden;
 	background: #f5f5f5;
 }
 
@@ -623,7 +624,7 @@ const formatExpression = (path: string) => `{{ ${path} }}`;
 	display: grid;
 	grid-template-columns: 300px 1fr;
 	gap: 0;
-	min-height: calc(100vh - 200px);
+	height: 100vh;
 }
 
 /* Sidebar */
@@ -632,7 +633,7 @@ const formatExpression = (path: string) => `{{ ${path} }}`;
 	color: white;
 	padding: var(--spacing--lg);
 	overflow-y: auto;
-	max-height: calc(100vh - 200px);
+	height: 100vh;
 	border-right: 1px solid #1a202c;
 
 	h2 {
@@ -736,7 +737,7 @@ const formatExpression = (path: string) => `{{ ${path} }}`;
 	background: #4a5568;
 	padding: var(--spacing--2xl);
 	overflow-y: auto;
-	max-height: calc(100vh - 200px);
+	height: 100vh;
 
 	.section-hint {
 		color: #e2e8f0;
