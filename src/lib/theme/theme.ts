@@ -39,7 +39,7 @@ export const inputTheme = ({ rows, isReadOnly } = { rows: 5, isReadOnly: false }
 			borderBottomLeftRadius: 0,
 			borderBottomRightRadius:
 				'var(--input-triple--radius--bottom-right, var(--input--radius, var(--radius)))',
-			backgroundColor: 'white',
+			backgroundColor: '#1a202c',
 		},
 		'.cm-cursor, .cm-dropCursor': {
 			borderLeftColor: 'var(--code--caret--color)',
@@ -65,7 +65,7 @@ export const outputTheme = () => {
 			padding: '0',
 			borderTopLeftRadius: '0',
 			borderBottomLeftRadius: '0',
-			backgroundColor: 'white',
+			backgroundColor: '#1a202c',
 		},
 		'.cm-scroller': {
 			lineHeight: '1.6',
