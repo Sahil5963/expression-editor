@@ -33,6 +33,7 @@ export const useExpressionEditor = ({
 	autocompleteTelemetry,
 	isReadOnly = false,
 	disableSearchDialog = false,
+	onDocChange,
 }: {
 	editorRef: MaybeRefOrGetter<HTMLElement | undefined>;
 	editorValue?: MaybeRefOrGetter<string>;
@@ -41,6 +42,7 @@ export const useExpressionEditor = ({
 	autocompleteTelemetry?: MaybeRefOrGetter<{ enabled: true; parameterPath: string }>;
 	isReadOnly?: MaybeRefOrGetter<boolean>;
 	disableSearchDialog?: MaybeRefOrGetter<boolean>;
+	onDocChange?: (content: string) => void;
 }) => {
 	const editor = ref<EditorView>();
 	const hasFocus = ref(false);
@@ -116,7 +118,12 @@ export const useExpressionEditor = ({
 						hasFocus.value = update.view.hasFocus;
 					}
 					if (update.docChanged) {
-						parseAndHighlight(update.state.doc.toString(), update.view);
+						const content = update.state.doc.toString();
+						parseAndHighlight(content, update.view);
+						// Notify parent of content changes
+						if (onDocChange) {
+							onDocChange(content);
+						}
 					}
 				}),
 				EditorState.readOnly.of(toValue(isReadOnly)),

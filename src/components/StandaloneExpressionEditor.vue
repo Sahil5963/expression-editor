@@ -114,6 +114,13 @@ const {
 	isReadOnly: computed(() => props.isReadOnly),
 	autocompleteTelemetry: { enabled: true, parameterPath: props.path },
 	additionalData: props.additionalData,
+	onDocChange: (content: string) => {
+		// Emit update on every document change for real-time sync
+		emit('update:model-value', {
+			value: '=' + content,
+			segments: segments.value.display,
+		});
+	},
 });
 
 // Handle drag and drop
@@ -166,12 +173,7 @@ defineExpose({
 	handleDrop,
 });
 
-watch(segments.display, (newSegments) => {
-	emit('update:model-value', {
-		value: '=' + readEditorValue(),
-		segments: newSegments,
-	});
-});
+// Removed segments watcher - now handled by onDocChange callback
 
 watch(selection, (newSelection: SelectionRange) => {
 	if (editorRef.value) {
