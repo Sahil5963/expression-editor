@@ -57,23 +57,41 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 
 		// Create custom extensions
 		const extensions = React.useMemo(
-			() => [
-				Prec.highest(keymap.of(editorKeymap)),
-				n8nLang(),
-				// Use our custom autocomplete
-				autocompletion({
-					override: [customDollarCompletions],
-					icons: false,
-					aboveCursor: true,
-					closeOnBlur: false,
-				}),
-				inputTheme({ isReadOnly: readOnly, rows }),
-				history(),
-				dropCursor(),
-				expressionCloseBrackets(),
-				EditorView.lineWrapping,
-				infoBoxTooltips(),
-			],
+			() => {
+				const isSingleLine = rows === 1;
+
+				return [
+					Prec.highest(keymap.of(editorKeymap)),
+					n8nLang(),
+					// Block Enter key for single-line inputs
+					...(isSingleLine
+						? [
+								Prec.highest(
+									keymap.of([
+										{
+											key: 'Enter',
+											run: () => true, // Block Enter key
+										},
+									]),
+								),
+						  ]
+						: []),
+					// Use our custom autocomplete
+					autocompletion({
+						override: [customDollarCompletions],
+						icons: false,
+						aboveCursor: true,
+						closeOnBlur: false,
+					}),
+					inputTheme({ isReadOnly: readOnly, rows }),
+					history(),
+					dropCursor(),
+					expressionCloseBrackets(),
+					// Only enable line wrapping for multi-line inputs
+					...(isSingleLine ? [] : [EditorView.lineWrapping]),
+					infoBoxTooltips(),
+				];
+			},
 			[readOnly, rows],
 		);
 

@@ -16,7 +16,8 @@ const commonThemeProps = (isReadOnly = false) => ({
 });
 
 export const inputTheme = ({ rows, isReadOnly } = { rows: 5, isReadOnly: false }) => {
-	const maxHeight = Math.max(rows * 22 + 8);
+	const isSingleLine = rows === 1;
+	const maxHeight = isSingleLine ? 30 : rows * 22 + 8;
 	const theme = EditorView.theme({
 		...commonThemeProps(isReadOnly),
 		'&': {
@@ -40,12 +41,14 @@ export const inputTheme = ({ rows, isReadOnly } = { rows: 5, isReadOnly: false }
 			borderBottomRightRadius:
 				'var(--input-triple--radius--bottom-right, var(--input--radius, var(--radius)))',
 			backgroundColor: '#1a202c',
+			...(isSingleLine ? { overflow: 'hidden' } : {}),
 		},
 		'.cm-cursor, .cm-dropCursor': {
 			borderLeftColor: 'var(--code--caret--color)',
 		},
 		'.cm-scroller': {
 			lineHeight: '1.68',
+			...(isSingleLine ? { overflow: 'hidden !important' } : {}),
 		},
 		'.cm-lineWrapping': {
 			wordBreak: 'break-all',
