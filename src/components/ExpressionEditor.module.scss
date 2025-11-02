@@ -1,0 +1,21 @@
+.expression-editor {
+	:global(.cm-editor) {
+		background: #1a202c !important;
+		font-size: 12px !important; // var(--font-size--2xs)
+		letter-spacing: 0 !important;
+	}
+
+	:global(.cm-content) {
+		color: #cbd5e0 !important; // Softer gray, not bright white
+		font-family: 'Menlo', 'Monaco', 'Courier New', monospace !important;
+	}
+
+	:global(.cm-line) {
+		color: #cbd5e0 !important; // Softer gray
+		padding: 0 !important;
+	}
+
+	:global(.cm-scroller) {
+		line-height: 1.68 !important; // Matches n8n exactly
+	}
+}
