@@ -10,7 +10,7 @@ import { EditorView, keymap } from '@codemirror/view';
 const expressionBracketSpacing = EditorView.updateListener.of((update) => {
 	if (!update.changes || update.changes.empty) return;
 
-	// {{|}} --> {{ | }}
+	// {{|}} --> {{|}} (no spacing by default)
 	update.changes.iterChanges((_fromA, _toA, fromB, toB, inserted) => {
 		const doc = update.state.doc;
 		if (
@@ -18,10 +18,7 @@ const expressionBracketSpacing = EditorView.updateListener.of((update) => {
 			doc.sliceString(fromB - 1, fromB) === '{' &&
 			doc.sliceString(toB, toB + 1) === '}'
 		) {
-			update.view.dispatch({
-				changes: [{ from: fromB + 1, insert: '  ' }],
-				selection: EditorSelection.cursor(toB),
-			});
+			// Don't add spacing - just trigger autocomplete
 			startCompletion(update.view);
 		}
 	});

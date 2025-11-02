@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { EditorView, keymap, dropCursor } from '@codemirror/view';
-import { EditorState, Prec, type SelectionRange, EditorSelection } from '@codemirror/state';
+import { EditorState, Prec, type SelectionRange } from '@codemirror/state';
 import { history } from '@codemirror/commands';
 import { autocompletion } from '@codemirror/autocomplete';
 import type { IDataObject } from '@/types/workflow';
@@ -55,13 +55,45 @@ const extensions = computed(() => [
 	}),
 	inputTheme({ isReadOnly: props.isReadOnly, rows: props.rows }),
 	history(),
-	dropCursor(), // Native CodeMirror drop cursor for visual feedback
-	EditorView.domEventHandlers({
-		drop: () => true, // Disable CodeMirror's built-in drop handling
-	}),
+	dropCursor(), // Native CodeMirror drop cursor - provides visual feedback
 	expressionCloseBrackets(),
 	EditorView.lineWrapping,
 	infoBoxTooltips(),
+	// Handle drop at CodeMirror level - do the insertion here with direct view access
+	EditorView.domEventHandlers({
+		drop: (event, view) => {
+			console.log('[CODEMIRROR] domEventHandler.drop called', {
+				clientX: event.clientX,
+				clientY: event.clientY,
+				target: event.target
+			});
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const value = event.dataTransfer?.getData('text/plain');
+			if (!value) {
+				console.log('[CODEMIRROR] No value to drop');
+				return true;
+			}
+
+			// Get position HERE where we have guaranteed view access
+			const pos = view.posAtCoords({ x: event.clientX, y: event.clientY }, false);
+			console.log('[CODEMIRROR] Position at coords:', pos);
+
+			if (pos !== null) {
+				console.log('[CODEMIRROR] Dispatching insert at', pos);
+				view.dispatch({
+					changes: { from: pos, insert: value },
+					selection: { anchor: pos + value.length },
+					userEvent: 'input.drop',
+				});
+				console.log('[CODEMIRROR] After insert, doc:', view.state.doc.toString());
+			}
+
+			return true; // We handled it
+		},
+	}),
 ]);
 
 const editorValue = computed(() => props.modelValue);
@@ -86,33 +118,44 @@ const {
 
 // Handle drag and drop
 function handleDragOver(event: DragEvent) {
+	console.log('[DRAG] handleDragOver', { clientX: event.clientX, clientY: event.clientY });
 	event.preventDefault();
 	event.dataTransfer!.dropEffect = 'copy';
 }
 
 function handleDrop(event: DragEvent) {
+	console.log('[DROP] handleDrop START', {
+		clientX: event.clientX,
+		clientY: event.clientY,
+		target: event.target,
+		currentTarget: event.currentTarget
+	});
+
 	event.preventDefault();
-	event.stopPropagation(); // Prevent CodeMirror's default drop handling
 
 	const value = event.dataTransfer?.getData('text/plain');
-	if (!value || !editorRef.value) return;
+	console.log('[DROP] Got value:', value);
+
+	if (!value || !editorRef.value) {
+		console.log('[DROP] Early return - no value or no editor');
+		return;
+	}
 
 	// Get the drop position
 	const view = editorRef.value;
 	const pos = view.posAtCoords({ x: event.clientX, y: event.clientY }, false);
+	console.log('[DROP] Drop position:', pos);
+	console.log('[DROP] Current doc content:', view.state.doc.toString());
 
 	// Insert the value at the drop position
-	const changes = view.state.changes({ from: pos, insert: value });
-	const anchor = changes.mapPos(pos, -1);
-	const head = changes.mapPos(pos, 1);
-	const selectionRange = EditorSelection.single(anchor, head);
-
+	console.log('[DROP] Dispatching insert at position', pos);
 	view.dispatch({
-		changes,
-		selection: selectionRange,
+		changes: { from: pos, insert: value },
+		selection: { anchor: pos + value.length },
 		userEvent: 'input.drop',
 	});
 
+	console.log('[DROP] After dispatch, doc content:', view.state.doc.toString());
 	setTimeout(() => view.focus());
 }
 
@@ -157,15 +200,22 @@ watch(hasFocus, (focused) => {
 .standalone-expression-editor {
 	:deep(.cm-editor) {
 		background: #1a202c !important;
-		color: #e2e8f0 !important;
+		font-size: var(--font-size--2xs) !important; // 12px - matches n8n
+		letter-spacing: 0 !important;
 	}
 
 	:deep(.cm-content) {
-		color: #e2e8f0 !important;
+		color: #cbd5e0 !important; // Softer gray, not bright white
+		font-family: var(--font-family--monospace) !important;
 	}
 
 	:deep(.cm-line) {
-		color: #e2e8f0 !important;
+		color: #cbd5e0 !important; // Softer gray
+		padding: 0 !important;
+	}
+
+	:deep(.cm-scroller) {
+		line-height: 1.68 !important; // Matches n8n exactly
 	}
 }
 </style>

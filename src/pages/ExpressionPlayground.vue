@@ -384,21 +384,6 @@ const formatExpression = (path: string) => `{{ ${path} }}`;
 			<button @click="componentError = null" class="dismiss-btn">Dismiss</button>
 		</div>
 
-		<!-- Header -->
-		<header class="playground-header">
-			<h1>n8n Expression Editor Playground</h1>
-			<p class="subtitle">
-				Standalone testing environment - No authentication required
-			</p>
-			<div class="feature-badges">
-				<span class="badge">🎨 Syntax Highlighting</span>
-				<span class="badge">💡 Autocomplete</span>
-				<span class="badge">🔍 Nested Typing</span>
-				<span class="badge">🖱️ Drag & Drop</span>
-				<span class="badge">⌨️ Keyboard Shortcuts</span>
-			</div>
-		</header>
-
 		<!-- Main layout -->
 		<div class="playground-layout">
 			<!-- Left sidebar - Draggable variables -->

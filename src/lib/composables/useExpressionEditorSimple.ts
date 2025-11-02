@@ -136,9 +136,15 @@ export const useExpressionEditor = ({
 	watch(
 		() => toValue(editorValue),
 		(newValue) => {
-			if (!editor.value) return;
+			console.log('[WATCH] editorValue changed', { newValue });
+			if (!editor.value) {
+				console.log('[WATCH] No editor, skipping');
+				return;
+			}
 			const currentValue = editor.value.state.doc.toString();
+			console.log('[WATCH] Comparing', { newValue, currentValue, match: newValue === currentValue });
 			if (newValue !== currentValue) {
+				console.log('[WATCH] Values differ - dispatching update from watch');
 				editor.value.dispatch({
 					changes: { from: 0, to: currentValue.length, insert: newValue || '' },
 				});

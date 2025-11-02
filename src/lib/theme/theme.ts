@@ -70,6 +70,14 @@ export const outputTheme = () => {
 		'.cm-scroller': {
 			lineHeight: '1.6',
 		},
+		'.cm-valid-resolvable': {
+			padding: '0 2px',
+			borderRadius: '2px',
+		},
+		'.cm-invalid-resolvable': {
+			padding: '0 2px',
+			borderRadius: '2px',
+		},
 	});
 
 	return [theme, highlighter.resolvableStyle];

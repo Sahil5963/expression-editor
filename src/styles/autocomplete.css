@@ -1,0 +1,126 @@
+/* Custom Autocomplete Styles - Dark theme matching n8n */
+
+/* Main autocomplete container */
+.cm-tooltip-autocomplete {
+	background: #3e4551;
+	border: 1px solid #4a5160;
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+	padding: 4px 0;
+	max-height: 300px;
+	min-width: 200px;
+	font-family: var(--font-family);
+}
+
+/* Autocomplete list */
+.cm-tooltip-autocomplete ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-height: 280px;
+	overflow-y: auto;
+}
+
+/* Individual completion items */
+.cm-tooltip-autocomplete li {
+	padding: 6px 12px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	transition: background-color 0.1s ease;
+	font-size: 13px;
+	color: #c5c9d0;
+	border: none;
+}
+
+/* Hover state */
+.cm-tooltip-autocomplete li:hover {
+	background-color: #4a5160;
+}
+
+/* Selected/active item */
+.cm-tooltip-autocomplete li[aria-selected="true"] {
+	background-color: #5f6878;
+	color: #ffffff;
+}
+
+/* Completion label */
+.cm-completionLabel {
+	flex: 1;
+	font-weight: 400;
+}
+
+/* Completion detail (type indicator) */
+.cm-completionDetail {
+	font-size: 11px;
+	color: #8b91a0;
+	background: transparent;
+	padding: 0;
+	border-radius: 0;
+	font-family: monospace;
+	text-transform: lowercase;
+}
+
+/* When selected, change detail color */
+.cm-tooltip-autocomplete li[aria-selected="true"] .cm-completionDetail {
+	color: rgba(255, 255, 255, 0.7);
+}
+
+/* Info tooltip - Dark styled, same as list */
+.cm-tooltip.cm-tooltip-autocomplete.cm-completionInfo {
+	background: #3e4551 !important;
+	color: #e5e7eb !important;
+	border: 1px solid #4a5160 !important;
+	border-radius: 4px !important;
+	padding: 10px 12px !important;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+	max-width: 320px !important;
+	min-width: 200px !important;
+	font-size: 12px !important;
+	line-height: 1.5 !important;
+	white-space: pre-wrap !important;
+	z-index: 1001 !important;
+	font-family: var(--font-family) !important;
+}
+
+/* Scrollbar styling for completion list */
+.cm-tooltip-autocomplete ul::-webkit-scrollbar {
+	width: 6px;
+}
+
+.cm-tooltip-autocomplete ul::-webkit-scrollbar-track {
+	background: transparent;
+	border-radius: 3px;
+}
+
+.cm-tooltip-autocomplete ul::-webkit-scrollbar-thumb {
+	background: #5f6878;
+	border-radius: 3px;
+}
+
+.cm-tooltip-autocomplete ul::-webkit-scrollbar-thumb:hover {
+	background: #6b7280;
+}
+
+/* Type-specific icons/colors (optional) */
+.cm-completionIcon {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	margin-right: 4px;
+}
+
+/* Section headers (if you add them) */
+.cm-completionSection {
+	padding: 6px 12px;
+	font-size: 11px;
+	font-weight: 600;
+	color: #718096;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	background: #f7fafc;
+	margin: 4px 0;
+	border-radius: 4px;
+}

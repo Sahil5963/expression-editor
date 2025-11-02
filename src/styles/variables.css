@@ -103,12 +103,12 @@
 	--color--background--light-3: #ffffff;
 
 	/* Expression Editor - Resolvable Highlighting */
-	--expression-editor--resolvable--color--foreground--valid: #16a34a;
-	--expression-editor--resolvable--color--background--valid: rgba(220, 252, 231, 0.4);
-	--expression-editor--resolvable--color--foreground--invalid: #dc2626;
-	--expression-editor--resolvable--color--background--invalid: rgba(254, 226, 226, 0.5);
+	--expression-editor--resolvable--color--foreground--valid: #22c55e;
+	--expression-editor--resolvable--color--background--valid: rgba(34, 197, 94, 0.15);
+	--expression-editor--resolvable--color--foreground--invalid: #ef4444;
+	--expression-editor--resolvable--color--background--invalid: rgba(239, 68, 68, 0.15);
 	--expression-editor--resolvable--color--foreground--pending: #f59e0b;
-	--expression-editor--resolvable--color--background--pending: rgba(253, 230, 138, 0.4);
+	--expression-editor--resolvable--color--background--pending: rgba(245, 158, 11, 0.15);
 
 	/* Code Editor */
 	--code--caret--color: #667eea;

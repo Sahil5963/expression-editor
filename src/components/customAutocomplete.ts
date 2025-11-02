@@ -28,7 +28,7 @@ function getNestedValue(obj: any, path: string): any {
 	return current;
 }
 
-function getCompletionsForObject(obj: any): Completion[] {
+function getCompletionsForObject(obj: any, parentPath?: string): Completion[] {
 	if (!obj || typeof obj !== 'object') return [];
 
 	const completions: Completion[] = [];
@@ -36,15 +36,32 @@ function getCompletionsForObject(obj: any): Completion[] {
 	for (const key of Object.keys(obj)) {
 		const value = obj[key];
 		const type = Array.isArray(value) ? 'array' : typeof value;
+		const fullPath = parentPath ? `${parentPath}.${key}` : key;
+
+		// Create custom info content
+		let infoContent: string;
+		if (typeof value === 'object' && !Array.isArray(value)) {
+			const propCount = Object.keys(value).length;
+			const preview = Object.keys(value).slice(0, 3).join(', ');
+			infoContent = `📦 Object (${propCount} ${propCount === 1 ? 'property' : 'properties'})\n\nProperties: ${preview}${propCount > 3 ? '...' : ''}`;
+		} else if (Array.isArray(value)) {
+			const preview = value.length > 0 ? `\n\nFirst item: ${JSON.stringify(value[0]).substring(0, 50)}` : '';
+			infoContent = `📚 Array (${value.length} ${value.length === 1 ? 'item' : 'items'})${preview}`;
+		} else if (typeof value === 'string') {
+			infoContent = `📝 String\n\nValue: "${value.substring(0, 100)}"${value.length > 100 ? '...' : ''}`;
+		} else if (typeof value === 'number') {
+			infoContent = `🔢 Number\n\nValue: ${value}`;
+		} else if (typeof value === 'boolean') {
+			infoContent = `✓ Boolean\n\nValue: ${value}`;
+		} else {
+			infoContent = `${type}\n\nValue: ${String(value).substring(0, 100)}`;
+		}
 
 		completions.push({
 			label: key,
 			type: type,
-			info: typeof value === 'object' && !Array.isArray(value)
-				? `Object with ${Object.keys(value).length} properties`
-				: Array.isArray(value)
-				? `Array with ${value.length} items`
-				: `${type}: ${String(value).substring(0, 50)}`,
+			info: infoContent,
+			detail: `${type}`, // Shows next to the label
 		});
 	}
 
@@ -52,10 +69,11 @@ function getCompletionsForObject(obj: any): Completion[] {
 }
 
 /**
- * Custom dollar completions for $json, $input, etc.
+ * Custom completions for variables (without $ prefix requirement)
  */
 export function customDollarCompletions(context: CompletionContext): CompletionResult | null {
-	const word = context.matchBefore(/\$[\w.]*/);
+	// Match any word with dots (e.g., "json", "json.name", "user.address.city")
+	const word = context.matchBefore(/[\w.]*/);
 
 	if (!word) return null;
 	if (word.from === word.to && !context.explicit) return null;
@@ -63,13 +81,13 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 	const text = word.text;
 	console.log('🔍 Autocomplete triggered for:', text);
 
-	// Just typed $
-	if (text === '$') {
+	// Empty or just starting - show all root variables
+	if (text === '' || context.explicit) {
 		const rootCompletions: Completion[] = Object.keys(mockData).map(key => {
 			// Remove leading $ if it exists in the key
 			const cleanKey = key.startsWith('$') ? key.substring(1) : key;
 			return {
-				label: `$${cleanKey}`,
+				label: cleanKey,
 				type: 'variable',
 				info: `Root variable: ${cleanKey}`,
 			};
@@ -83,11 +101,11 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 		};
 	}
 
-	// Typed $json. or $input.something.
+	// Typed "json." or "user.address."
 	if (text.includes('.')) {
-		const parts = text.substring(1).split('.'); // Remove $ and split
+		const parts = text.split('.');
 		const rootKey = parts[0]; // e.g., "json"
-		const path = parts.slice(1, -1).join('.'); // e.g., "address.coordinates"
+		const path = parts.slice(1, -1).join('.'); // e.g., "address"
 		const incomplete = parts[parts.length - 1]; // Current typing
 
 		console.log('🔎 Nested lookup:', { rootKey, path, incomplete });
@@ -124,18 +142,17 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 		};
 	}
 
-	// Typed $json (no dot yet)
-	if (text.startsWith('$') && text.length > 1) {
-		const typed = text.substring(1);
+	// Typed "json" (no dot yet) - filter root completions
+	if (text.length > 0) {
 		const rootCompletions: Completion[] = Object.keys(mockData)
 			.map(key => {
 				// Remove leading $ if it exists in the key
 				const cleanKey = key.startsWith('$') ? key.substring(1) : key;
 				return { cleanKey, originalKey: key };
 			})
-			.filter(({ cleanKey }) => cleanKey.toLowerCase().startsWith(typed.toLowerCase()))
+			.filter(({ cleanKey }) => cleanKey.toLowerCase().startsWith(text.toLowerCase()))
 			.map(({ cleanKey }) => ({
-				label: `$${cleanKey}`,
+				label: cleanKey,
 				type: 'variable',
 				info: `Root variable: ${cleanKey}`,
 			}));
