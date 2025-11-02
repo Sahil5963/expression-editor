@@ -13,6 +13,8 @@ import { inputTheme } from '@/lib/theme/theme';
 import { expressionCloseBrackets } from '@/lib/codemirror-plugins/expressionCloseBrackets';
 import { infoBoxTooltips } from '@/lib/codemirror-plugins/tooltips/InfoBoxTooltip';
 import { customDollarCompletions, setMockAutocompleteData } from './customAutocomplete';
+import '@/styles/variables.css';
+import '@/styles/autocomplete.css';
 import './ExpressionEditor.module.scss';
 
 export interface ExpressionEditorProps {

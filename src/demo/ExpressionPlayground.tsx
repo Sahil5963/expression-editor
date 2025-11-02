@@ -2,6 +2,8 @@ import React, { useState, useRef, useMemo } from 'react';
 import type { IDataObject } from '@/types/workflow';
 import { ExpressionEditor, type ExpressionEditorRef } from '@/components/ExpressionEditor';
 import type { Segment } from '@/types/expressions';
+import '@/styles/variables.css';
+import '@/styles/autocomplete.css';
 import './ExpressionPlayground.css';
 
 /**
