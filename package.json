@@ -11,17 +11,20 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
-    },
-    "./styles.css": "./dist/style.css"
+    }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 3000",
-    "build": "tsc && vite build",
-    "build:check": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "dev": "pnpm run dev:lib & pnpm run dev:example",
+    "dev:lib": "vite build --watch --mode development",
+    "dev:example": "cd example && pnpm dev",
+    "build": "vite build",
+    "build:types": "tsc && vite build",
+    "build:check": "tsc --noEmit",
+    "preview": "vite preview",
+    "prepublishOnly": "pnpm run build"
   },
   "peerDependencies": {
     "react": "^18.0.0",

@@ -1,134 +1,231 @@
-import React, { useEffect, useCallback, useImperativeHandle, forwardRef } from 'react';
+import React, { useMemo, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { EditorView, keymap, dropCursor } from '@codemirror/view';
 import { EditorState, Prec, type SelectionRange } from '@codemirror/state';
 import { history } from '@codemirror/commands';
 import { autocompletion } from '@codemirror/autocomplete';
-import type { IDataObject } from '@/types/workflow';
 import type { Segment } from '@/types/expressions';
 
 import { useExpressionEditor } from '@/lib/hooks/useExpressionEditor';
 import { n8nLang } from '@/lib/codemirror-plugins/n8nLang';
 import { editorKeymap } from '@/lib/codemirror-plugins/keymap';
-import { inputTheme } from '@/lib/theme/theme';
 import { expressionCloseBrackets } from '@/lib/codemirror-plugins/expressionCloseBrackets';
 import { infoBoxTooltips } from '@/lib/codemirror-plugins/tooltips/InfoBoxTooltip';
-import { customDollarCompletions, setMockAutocompleteData } from './customAutocomplete';
-import '@/styles/variables.css';
-import '@/styles/autocomplete.css';
-import './ExpressionEditor.module.scss';
+import { createEditorTheme, EDITOR_CLASS_NAMES, type ThemeConfig } from '@/lib/theme';
+import { createDefaultAutocompleteProvider, type AutocompleteProvider, type AutocompleteData } from '@/lib/autocomplete';
 
+/**
+ * Props for the ExpressionEditor component
+ */
 export interface ExpressionEditorProps {
+	/** Current value of the editor (controlled) */
 	value: string;
+
+	/** Callback when the value changes */
 	onChange: (data: { value: string; segments: Segment[] }) => void;
-	onSelectionChange?: (data: { state: EditorState; selection: SelectionRange }) => void;
-	onFocus?: () => void;
-	path?: string;
-	rows?: number;
-	readOnly?: boolean;
-	additionalData?: IDataObject;
-	placeholder?: string;
+
+	/** Autocomplete data object for default autocomplete provider */
+	autocompleteData?: AutocompleteData;
+
+	/** Custom autocomplete provider function */
+	autocompleteProvider?: AutocompleteProvider;
+
+	/** Theme configuration */
+	theme?: ThemeConfig;
+
+	/** Enable drag and drop support */
+	enableDragDrop?: boolean;
+
+	/** Callback when something is dropped */
+	onDrop?: (value: string, position: number) => void;
+
+	/** Additional CSS class name */
 	className?: string;
+
+	/** Inline styles */
+	style?: React.CSSProperties;
+
+	/** Number of rows (1 for single-line) */
+	rows?: number;
+
+	/** Maximum height (CSS value) */
+	maxHeight?: string | number;
+
+	/** Read-only mode */
+	readOnly?: boolean;
+
+	/** Placeholder text */
+	placeholder?: string;
+
+	/** Callback when editor receives focus */
+	onFocus?: () => void;
+
+	/** Callback when editor loses focus */
+	onBlur?: () => void;
+
+	/** Callback when selection changes */
+	onSelectionChange?: (data: { state: EditorState; selection: SelectionRange }) => void;
+
+	/** Parameter path for telemetry */
+	path?: string;
 }
 
+/**
+ * Ref interface for imperative API
+ */
 export interface ExpressionEditorRef {
+	/** Focus the editor */
 	focus: () => void;
+
+	/** Set cursor position */
 	setCursorPosition: (position: 'lastExpression' | number) => void;
+
+	/** Handle drop event programmatically */
 	handleDrop: (event: React.DragEvent) => void;
 }
 
+/**
+ * Expression Editor Component
+ *
+ * A powerful code editor for expressions with autocomplete, syntax highlighting,
+ * and customizable theming.
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <ExpressionEditor
+ *   value={expression}
+ *   onChange={({ value }) => setExpression(value)}
+ * />
+ *
+ * // With autocomplete data
+ * <ExpressionEditor
+ *   value={expression}
+ *   onChange={({ value }) => setExpression(value)}
+ *   autocompleteData={{ user: { name: 'John' }, order: { id: 123 } }}
+ * />
+ *
+ * // With custom theme
+ * <ExpressionEditor
+ *   value={expression}
+ *   onChange={({ value }) => setExpression(value)}
+ *   theme={{ colors: { background: '#000', text: '#fff' } }}
+ * />
+ * ```
+ */
 export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditorProps>(
 	(props, ref) => {
 		const {
 			value,
 			onChange,
-			onSelectionChange,
-			onFocus,
-			path = 'expression',
-			rows = 5,
-			readOnly = false,
-			additionalData = {},
+			autocompleteData,
+			autocompleteProvider,
+			theme,
+			enableDragDrop = true,
+			onDrop,
 			className = '',
+			style = {},
+			rows = 5,
+			maxHeight,
+			readOnly = false,
+			placeholder,
+			onFocus,
+			onBlur,
+			onSelectionChange,
+			path = 'expression',
 		} = props;
 
-		// Update mock autocomplete data when additionalData changes
-		useEffect(() => {
-			setMockAutocompleteData(additionalData);
-		}, [additionalData]);
+		// Create theme with options (returns array of [theme, highlighter])
+		const editorTheme = useMemo(
+			() => createEditorTheme(theme, { rows, isReadOnly: readOnly }),
+			[theme, rows, readOnly],
+		);
+
+		// Create autocomplete provider
+		const autocompleteFn = useMemo(() => {
+			if (autocompleteProvider) return autocompleteProvider;
+			if (autocompleteData) return createDefaultAutocompleteProvider(autocompleteData);
+			return null;
+		}, [autocompleteProvider, autocompleteData]);
 
 		// Create custom extensions
-		const extensions = React.useMemo(
-			() => {
-				const isSingleLine = rows === 1;
+		const extensions = useMemo(() => {
+			const isSingleLine = rows === 1;
 
-				return [
-					Prec.highest(keymap.of(editorKeymap)),
-					n8nLang(),
-					// Block Enter key for single-line inputs
-					...(isSingleLine
-						? [
-								Prec.highest(
-									keymap.of([
-										{
-											key: 'Enter',
-											run: () => true, // Block Enter key
-										},
-									]),
-								),
-						  ]
-						: []),
-					// Use our custom autocomplete
+			const exts = [
+				...(Array.isArray(editorTheme) ? editorTheme : [editorTheme]), // Spread the array [theme, highlighter]
+				Prec.highest(keymap.of(editorKeymap)),
+				n8nLang(),
+				history(),
+				expressionCloseBrackets(),
+				infoBoxTooltips(),
+			];
+
+			// Block Enter key for single-line inputs
+			if (isSingleLine) {
+				exts.push(
+					Prec.highest(
+						keymap.of([
+							{
+								key: 'Enter',
+								run: () => true, // Block Enter key
+							},
+						]),
+					),
+				);
+			} else {
+				// Only enable line wrapping for multi-line inputs
+				exts.push(EditorView.lineWrapping);
+			}
+
+			// Add autocomplete if provider exists
+			if (autocompleteFn) {
+				exts.push(
 					autocompletion({
-						override: [customDollarCompletions],
+						override: [autocompleteFn],
 						icons: false,
 						aboveCursor: true,
 						closeOnBlur: false,
 					}),
-					inputTheme({ isReadOnly: readOnly, rows }),
-					history(),
+				);
+			}
+
+			// Add drag and drop support
+			if (enableDragDrop) {
+				exts.push(
 					dropCursor(), // Native CodeMirror drop cursor - provides visual feedback
-					expressionCloseBrackets(),
-					// Only enable line wrapping for multi-line inputs
-					...(isSingleLine ? [] : [EditorView.lineWrapping]),
-					infoBoxTooltips(),
-					// Handle drop at CodeMirror level - do the insertion here with direct view access
 					EditorView.domEventHandlers({
 						drop: (event, view) => {
-							console.log('[CODEMIRROR] domEventHandler.drop called', {
-								clientX: event.clientX,
-								clientY: event.clientY,
-								target: event.target,
-							});
-
 							event.preventDefault();
 							event.stopPropagation();
 
 							const value = event.dataTransfer?.getData('text/plain');
-							if (!value) {
-								console.log('[CODEMIRROR] No value to drop');
-								return true;
-							}
+							if (!value) return true;
 
-							// Get position HERE where we have guaranteed view access
+							// Get position where drop occurred
 							const pos = view.posAtCoords({ x: event.clientX, y: event.clientY }, false);
-							console.log('[CODEMIRROR] Position at coords:', pos);
 
 							if (pos !== null) {
-								console.log('[CODEMIRROR] Dispatching insert at', pos);
+								// Call custom onDrop callback if provided
+								if (onDrop) {
+									onDrop(value, pos);
+								}
+
+								// Insert the value at the drop position
 								view.dispatch({
 									changes: { from: pos, insert: value },
 									selection: { anchor: pos + value.length },
 									userEvent: 'input.drop',
 								});
-								console.log('[CODEMIRROR] After insert, doc:', view.state.doc.toString());
 							}
 
 							return true; // We handled it
 						},
 					}),
-				];
-			},
-			[readOnly, rows],
-		);
+				);
+			}
+
+			return exts;
+		}, [editorTheme, rows, autocompleteFn, enableDragDrop, onDrop]);
 
 		const {
 			editorRef,
@@ -142,7 +239,7 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 		} = useExpressionEditor({
 			value: value.replace(/^=/, ''), // Remove leading '=' if present
 			extensions,
-			additionalData,
+			additionalData: autocompleteData || {},
 			isReadOnly: readOnly,
 			autocompleteTelemetry: { enabled: true, parameterPath: path },
 			onDocChange: (content: string) => {
@@ -163,58 +260,50 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 			onFocus: () => {
 				if (onFocus) onFocus();
 			},
+			onBlur: () => {
+				if (onBlur) onBlur();
+			},
 		});
 
 		// Handle drag over
 		const handleDragOver = useCallback((event: React.DragEvent) => {
-			console.log('[REACT-DRAG] handleDragOver', {
-				clientX: event.clientX,
-				clientY: event.clientY,
-			});
+			if (!enableDragDrop) return;
 			event.preventDefault();
 			event.dataTransfer.dropEffect = 'copy';
-		}, []);
+		}, [enableDragDrop]);
 
 		// Handle drop - This is a backup handler, CodeMirror handler should handle it first
 		const handleDrop = useCallback(
 			(event: React.DragEvent) => {
-				console.log('[REACT-DROP] handleDrop START', {
-					clientX: event.clientX,
-					clientY: event.clientY,
-					target: event.target,
-					currentTarget: event.currentTarget,
-				});
+				if (!enableDragDrop) return;
 
 				event.preventDefault();
 				event.stopPropagation();
 
 				const dragValue = event.dataTransfer?.getData('text/plain');
-				console.log('[REACT-DROP] Got value:', dragValue);
 
-				if (!dragValue || !editor) {
-					console.log('[REACT-DROP] Early return - no value or no editor');
-					return;
-				}
+				if (!dragValue || !editor) return;
 
 				// Get the drop position
 				const pos = editor.posAtCoords({ x: event.clientX, y: event.clientY }, false);
-				console.log('[REACT-DROP] Drop position:', pos);
-				console.log('[REACT-DROP] Current doc content:', editor.state.doc.toString());
 
 				if (pos !== null) {
+					// Call custom onDrop callback if provided
+					if (onDrop) {
+						onDrop(dragValue, pos);
+					}
+
 					// Insert the value at the drop position
-					console.log('[REACT-DROP] Dispatching insert at position', pos);
 					editor.dispatch({
 						changes: { from: pos, insert: dragValue },
 						selection: { anchor: pos + dragValue.length },
 						userEvent: 'input.drop',
 					});
-					console.log('[REACT-DROP] After dispatch, doc content:', editor.state.doc.toString());
 
 					setTimeout(() => editor.focus());
 				}
 			},
-			[editor],
+			[editor, enableDragDrop, onDrop],
 		);
 
 		// Expose methods to parent via ref
@@ -228,10 +317,20 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 			[focus, setCursorPosition, handleDrop],
 		);
 
+		// Combine styles
+		const containerStyle = useMemo(() => {
+			const baseStyle: React.CSSProperties = { ...style };
+			if (maxHeight) {
+				baseStyle.maxHeight = typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight;
+			}
+			return baseStyle;
+		}, [style, maxHeight]);
+
 		return (
 			<div
 				ref={editorRef}
-				className={`expression-editor ${className}`}
+				className={`${EDITOR_CLASS_NAMES.ROOT} ${className}`}
+				style={containerStyle}
 				onDragOver={handleDragOver}
 				onDrop={handleDrop}
 			/>

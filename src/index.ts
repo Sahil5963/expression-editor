@@ -1,14 +1,51 @@
 /**
  * @n8n/react-expression-editor
  *
- * React package for n8n Expression Editor with full autocomplete and CodeMirror support
+ * A powerful React component for expression editing with autocomplete,
+ * syntax highlighting, and customizable theming. Zero CSS imports required!
+ *
+ * @example
+ * ```tsx
+ * import { ExpressionEditor } from '@n8n/react-expression-editor';
+ *
+ * function App() {
+ *   const [expr, setExpr] = useState('');
+ *   return (
+ *     <ExpressionEditor
+ *       value={expr}
+ *       onChange={({ value }) => setExpr(value)}
+ *     />
+ *   );
+ * }
+ * ```
  */
 
-// Import base styles that should be included in the package
-import './styles/variables.css';
-import './styles/autocomplete.css';
+// Main component
+export { ExpressionEditor } from './components/ExpressionEditor';
+export type { ExpressionEditorProps, ExpressionEditorRef } from './components/ExpressionEditor';
 
-export { ExpressionEditor, type ExpressionEditorProps, type ExpressionEditorRef } from './components/ExpressionEditor';
-export { useExpressionEditor, type UseExpressionEditorOptions, type UseExpressionEditorReturn } from './lib/hooks/useExpressionEditor';
+// Hooks
+export { useExpressionEditor } from './lib/hooks/useExpressionEditor';
+export type {
+	UseExpressionEditorOptions,
+	UseExpressionEditorReturn,
+} from './lib/hooks/useExpressionEditor';
+
+// Theme system
+export { createEditorTheme, defaultTheme, darkTheme, lightTheme, n8nTheme } from './lib/theme';
+export { EDITOR_CLASS_NAMES, CSS_VARIABLES } from './lib/theme';
+export type {
+	ThemeConfig,
+	ThemeColors,
+	ThemeTypography,
+	ThemeSpacing,
+	ThemeBorder,
+} from './lib/theme';
+
+// Autocomplete system
+export { createDefaultAutocompleteProvider } from './lib/autocomplete';
+export type { AutocompleteProvider, AutocompleteData } from './lib/autocomplete';
+
+// Types
 export type { IDataObject } from './types/workflow';
 export type { Segment } from './types/expressions';

@@ -1,0 +1,137 @@
+/* Custom Autocomplete Styles - Dark theme matching n8n */
+
+/* Main autocomplete container */
+.cm-tooltip-autocomplete {
+	background: #1a202c !important;
+	border: 1px solid #2d3748 !important;
+	border-radius: 6px !important;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+	padding: 4px 0 !important;
+	max-height: 300px !important;
+	min-width: 220px !important;
+	font-family: var(--font-family) !important;
+}
+
+/* Autocomplete list */
+.cm-tooltip-autocomplete ul {
+	list-style: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	max-height: 280px !important;
+	overflow-y: auto !important;
+}
+
+/* Individual completion items */
+.cm-tooltip-autocomplete li {
+	padding: 8px 14px !important;
+	cursor: pointer !important;
+	display: flex !important;
+	align-items: center !important;
+	gap: 10px !important;
+	margin: 0 !important;
+	transition: background-color 0.15s ease !important;
+	font-size: 13px !important;
+	color: #cbd5e0 !important;
+	border: none !important;
+	background-color: transparent !important;
+}
+
+/* Hover state */
+.cm-tooltip-autocomplete li:hover {
+	background-color: #2d3748 !important;
+}
+
+/* Selected/active item */
+.cm-tooltip-autocomplete li[aria-selected="true"] {
+	background-color: #4a5568 !important;
+	color: #ffffff !important;
+}
+
+/* Completion label */
+.cm-completionLabel {
+	flex: 1 !important;
+	font-weight: 400 !important;
+	color: inherit !important;
+}
+
+/* Completion detail (type indicator) */
+.cm-completionDetail {
+	font-size: 11px !important;
+	color: #718096 !important;
+	background: transparent !important;
+	padding: 0 !important;
+	border-radius: 0 !important;
+	font-family: monospace !important;
+	text-transform: lowercase !important;
+}
+
+/* When selected, change detail color */
+.cm-tooltip-autocomplete li[aria-selected="true"] .cm-completionDetail {
+	color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Info tooltip - Dark styled, same as list */
+.cm-tooltip.cm-tooltip-autocomplete.cm-completionInfo,
+.cm-completionInfo,
+.cm-tooltip-autocomplete + .cm-tooltip {
+	background: #1a202c !important;
+	color: #e2e8f0 !important;
+	border: 1px solid #2d3748 !important;
+	border-radius: 6px !important;
+	padding: 12px 14px !important;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+	max-width: 340px !important;
+	min-width: 220px !important;
+	font-size: 12px !important;
+	line-height: 1.6 !important;
+	white-space: pre-wrap !important;
+	z-index: 1001 !important;
+	font-family: var(--font-family) !important;
+}
+
+/* Additional selector for the info box content */
+.cm-completionInfo.cm-tooltip,
+.cm-tooltip.cm-completionInfo {
+	background: #1a202c !important;
+	color: #e2e8f0 !important;
+}
+
+/* Scrollbar styling for completion list */
+.cm-tooltip-autocomplete ul::-webkit-scrollbar {
+	width: 8px;
+}
+
+.cm-tooltip-autocomplete ul::-webkit-scrollbar-track {
+	background: transparent;
+	border-radius: 4px;
+}
+
+.cm-tooltip-autocomplete ul::-webkit-scrollbar-thumb {
+	background: #4a5568;
+	border-radius: 4px;
+}
+
+.cm-tooltip-autocomplete ul::-webkit-scrollbar-thumb:hover {
+	background: #5a6678;
+}
+
+/* Type-specific icons/colors (optional) */
+.cm-completionIcon {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	margin-right: 4px;
+}
+
+/* Section headers (if you add them) */
+.cm-completionSection {
+	padding: 6px 12px;
+	font-size: 11px;
+	font-weight: 600;
+	color: #a0aec0;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	background: #0f1419;
+	margin: 4px 0;
+	border-radius: 4px;
+}

@@ -10,7 +10,7 @@ export default defineConfig({
     dts({
       insertTypesEntry: true,
       include: ['src/index.ts', 'src/components/**/*.tsx', 'src/components/**/*.ts', 'src/lib/hooks/**/*.ts', 'src/types/**/*.ts'],
-      exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/demo/**/*', 'src/__tests__/**', 'src/lib/composables/**', 'src/lib/codemirror-plugins/**/*.test.ts'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/__tests__/**', 'src/lib/composables/**', 'src/lib/codemirror-plugins/**/*.test.ts'],
       skipDiagnostics: true,
     }),
   ],
@@ -35,9 +35,5 @@ export default defineConfig({
         },
       },
     },
-  },
-  server: {
-    port: 3000,
-    host: '0.0.0.0',
   },
 });

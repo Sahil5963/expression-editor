@@ -1,9 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
-import type { IDataObject } from '@/types/workflow';
-import { ExpressionEditor, type ExpressionEditorRef } from '@/components/ExpressionEditor';
-import type { Segment } from '@/types/expressions';
-import '@/styles/variables.css';
-import '@/styles/autocomplete.css';
+import { ExpressionEditor, type ExpressionEditorRef, type AutocompleteData, type Segment } from '@n8n/react-expression-editor';
 import './ExpressionPlayground.css';
 
 /**
@@ -187,7 +183,7 @@ export const ExpressionPlayground: React.FC = () => {
 	});
 
 	// Comprehensive autocomplete data
-	const autocompleteData = useMemo((): IDataObject => {
+	const autocompleteData = useMemo((): AutocompleteData => {
 		return {
 			json: {
 				name: 'John Doe',
@@ -451,7 +447,7 @@ export const ExpressionPlayground: React.FC = () => {
 										path={`playground.${demo.id}`}
 										rows={demo.rows}
 										readOnly={demo.readOnly}
-										additionalData={autocompleteData}
+										autocompleteData={autocompleteData}
 									/>
 								</div>
 

@@ -1,18 +1,20 @@
 # @n8n/react-expression-editor
 
-A powerful React package for n8n Expression Editor with full autocomplete, syntax highlighting, and CodeMirror 6 support.
+A powerful React expression editor component with autocomplete, syntax highlighting, and customizable theming. **Zero CSS imports required!**
 
-## Features
+## ✨ Features
 
-✨ **Full-featured Expression Editor** - Drop-in React component with all n8n expression features
-🔍 **Smart Autocomplete** - Intelligent suggestions based on your data structure
-🎨 **Syntax Highlighting** - Beautiful highlighting for n8n expression syntax
-🖱️ **Drag & Drop Support** - Built-in handlers for variable insertion
-⚡ **TypeScript First** - Full type safety for all props and data structures
-🎯 **Flexible API** - Customizable theming, extensions, and callbacks
-📦 **Framework Agnostic Core** - CodeMirror logic separated for potential reuse
+- **Zero CSS Imports** - All styles injected via CSS-in-JS
+- **Fully Customizable Theming** - CSS variables, theme props, or class-based overrides
+- **Smart Autocomplete** - Pluggable autocomplete system with deep object navigation
+- **Drag & Drop Support** - Built-in drag and drop with customizable callbacks
+- **Rich Text Editing** - CodeMirror-powered with syntax highlighting
+- **Single & Multi-line Modes** - Flexible layout options
+- **Read-only Mode** - Display expressions without editing
+- **Hooks API** - Use the underlying hook for custom implementations
+- **TypeScript First** - Full type safety out of the box
 
-## Installation
+## 📦 Installation
 
 ```bash
 npm install @n8n/react-expression-editor
@@ -22,168 +24,143 @@ pnpm add @n8n/react-expression-editor
 yarn add @n8n/react-expression-editor
 ```
 
-## Basic Usage
+## 🚀 Quick Start
 
 ```tsx
 import { ExpressionEditor } from '@n8n/react-expression-editor';
-import '@n8n/react-expression-editor/styles.css';
+import { useState } from 'react';
 
-function MyComponent() {
-  const [expression, setExpression] = useState('{{json.name}}');
-
-  const handleChange = (data) => {
-    console.log('New value:', data.value);
-    setExpression(data.value);
-  };
-
-  const workflowData = {
-    json: {
-      name: 'John Doe',
-      email: 'john@example.com',
-      age: 30
-    }
-  };
+function App() {
+  const [expression, setExpression] = useState('');
 
   return (
     <ExpressionEditor
       value={expression}
-      onChange={handleChange}
-      additionalData={workflowData}
+      onChange={({ value }) => setExpression(value)}
     />
   );
 }
 ```
 
-## Advanced Usage
+## 📖 Usage Examples
 
-### With Refs
-
-```tsx
-import { useRef } from 'react';
-import { ExpressionEditor, ExpressionEditorRef } from '@n8n/react-expression-editor';
-
-function AdvancedComponent() {
-  const editorRef = useRef<ExpressionEditorRef>(null);
-
-  const focusEditor = () => {
-    editorRef.current?.focus();
-  };
-
-  return (
-    <div>
-      <button onClick={focusEditor}>Focus Editor</button>
-
-      <ExpressionEditor
-        ref={editorRef}
-        value="{{json.name}}"
-        onChange={(data) => console.log(data)}
-      />
-    </div>
-  );
-}
-```
-
-### With Complex Data
+### With Autocomplete Data
 
 ```tsx
-const complexData = {
-  json: {
-    user: {
-      name: 'John Doe',
-      address: {
-        city: 'San Francisco',
-        coordinates: {
-          lat: 37.7749,
-          lng: -122.4194
-        }
-      }
-    },
-    orders: [
-      { id: 1, product: 'Laptop', price: 1299.99 },
-      { id: 2, product: 'Mouse', price: 29.99 }
-    ]
-  }
-};
-
 <ExpressionEditor
-  value="{{json.user.address.city}}"
-  onChange={handleChange}
-  additionalData={complexData}
-  rows={5}
+  value={expression}
+  onChange={({ value, segments }) => setExpression(value)}
+  autocompleteData={{
+    user: { name: 'John', email: 'john@example.com' },
+    product: { id: 123, title: 'Laptop', price: 999 },
+    items: [{ id: 1 }, { id: 2 }]
+  }}
 />
 ```
 
-## API Reference
+### Custom Theme (via Props)
 
-### ExpressionEditor Props
+```tsx
+<ExpressionEditor
+  value={expression}
+  onChange={({ value }) => setExpression(value)}
+  theme={{
+    colors: {
+      background: '#282c34',
+      text: '#abb2bf',
+      primary: '#61afef',
+      caretColor: '#528bff'
+    },
+    typography: {
+      fontSize: '14px',
+      fontFamily: 'Fira Code, monospace'
+    }
+  }}
+/>
+```
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `value` | `string` | `''` | The current expression value |
-| `onChange` | `(data: { value: string; segments: Segment[] }) => void` | required | Callback fired when value changes |
-| `onSelectionChange` | `(data: { state: EditorState; selection: SelectionRange }) => void` | - | Callback fired when selection changes |
-| `onFocus` | `() => void` | - | Callback fired when editor gains focus |
-| `path` | `string` | `'expression'` | Parameter path for telemetry |
-| `rows` | `number` | `5` | Number of rows (height of editor) |
-| `readOnly` | `boolean` | `false` | Whether editor is read-only |
-| `additionalData` | `IDataObject` | `{}` | Data structure for autocomplete |
-| `placeholder` | `string` | - | Placeholder text |
-| `className` | `string` | `''` | Additional CSS class name |
+### Custom Theme (via CSS Variables)
 
-### ExpressionEditorRef Methods
+```tsx
+<div style={{
+  '--expr-editor-bg': '#000',
+  '--expr-editor-text': '#0f0',
+  '--expr-editor-caret': '#f00'
+}}>
+  <ExpressionEditor
+    value={expression}
+    onChange={({ value }) => setExpression(value)}
+  />
+</div>
+```
 
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `focus()` | - | Focus the editor |
-| `setCursorPosition()` | `position: 'lastExpression' \| number` | Set cursor position |
-| `handleDrop()` | `event: React.DragEvent` | Handle drop event |
+### With Drag & Drop
 
-## Development
+```tsx
+<ExpressionEditor
+  value={expression}
+  onChange={({ value }) => setExpression(value)}
+  enableDragDrop={true}
+  onDrop={(value, position) => {
+    console.log('Dropped:', value, 'at position:', position);
+  }}
+/>
+```
 
-### Running the Demo
+## 📚 API Reference
+
+See full API documentation in the [repository](https://github.com/yourusername/expression-editor).
+
+### Main Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `value` | `string` | Current value (controlled) |
+| `onChange` | `function` | Callback when value changes |
+| `autocompleteData` | `object` | Data for autocomplete |
+| `theme` | `ThemeConfig` | Theme configuration |
+| `rows` | `number` | Number of rows (1 for single-line) |
+| `readOnly` | `boolean` | Read-only mode |
+
+[See full props list](https://github.com/yourusername/expression-editor#api)
+
+## 🏗️ Development
+
+This project uses pnpm workspaces:
 
 ```bash
+# Install dependencies
 pnpm install
+
+# Run example app
 pnpm dev
-```
 
-Visit `http://localhost:3000` to see the interactive playground.
-
-### Building the Package
-
-```bash
+# Build library
 pnpm build
+
+# The example app imports the library via workspace:*
+cd example && pnpm dev
 ```
 
-This creates:
-- ESM build: `dist/index.js`
-- CJS build: `dist/index.cjs`
-- Type declarations: `dist/index.d.ts`
-- Styles: `dist/style.css`
-
-## Project Structure
+### Project Structure
 
 ```
-src/
-├── index.ts                    # Package entry point
-├── components/
-│   ├── ExpressionEditor.tsx    # Main React component
-│   ├── ExpressionEditor.module.scss
-│   └── customAutocomplete.ts   # Autocomplete logic
-├── lib/
-│   ├── hooks/
-│   │   └── useExpressionEditor.ts    # React hook
-│   ├── codemirror-plugins/    # All CodeMirror extensions
-│   └── theme/                 # Editor theme
-├── types/                     # TypeScript types
-├── demo/                      # Demo application
-│   ├── main.tsx              # Demo entry point
-│   ├── App.tsx               # Demo root component
-│   ├── ExpressionPlayground.tsx
-│   └── ExpressionPlayground.css
-└── styles/                    # Base styles
+expression-editor/
+├── src/                 # Library source
+│   ├── components/      # ExpressionEditor component
+│   ├── lib/            # Theme, autocomplete, hooks
+│   └── index.ts        # Main exports
+├── example/            # Demo application (separate package)
+│   ├── src/
+│   │   └── ExpressionPlayground.tsx
+│   └── package.json    # Uses workspace:* for library
+└── dist/               # Built library output
 ```
 
-## License
+## 📝 License
 
-Same as n8n
+MIT
+
+## 🤝 Contributing
+
+Contributions welcome! Please open an issue or PR.
