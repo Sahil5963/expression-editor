@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ExpressionEditor } from 'react-dynamic-expression-editor';
 import { Link } from 'react-router-dom';
 import { ChevronRight, ChevronDown, GripVertical } from 'lucide-react';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from './components/ui/resizable';
 import './DemoPage.css';
 
 export const DemoPage: React.FC = () => {
@@ -126,9 +127,10 @@ export const DemoPage: React.FC = () => {
 
 			{/* Main Content */}
 			<div className="demo-container">
-				<div className="demo-layout">
+				<ResizablePanelGroup direction="horizontal" className="demo-layout">
 					{/* Left Panel - API Data */}
-					<aside className="data-panel">
+					<ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
+						<aside className="data-panel">
 						<div className="panel-header">
 							<h3 className="panel-title">Available Data</h3>
 							<p className="panel-subtitle">JSONPlaceholder API</p>
@@ -157,10 +159,14 @@ export const DemoPage: React.FC = () => {
 						<div className="panel-footer">
 							<p className="hint">💡 Drag any item to the editor</p>
 						</div>
-					</aside>
+						</aside>
+					</ResizablePanel>
+
+					<ResizableHandle withHandle />
 
 					{/* Right Panel - Editor */}
-					<main className="editor-panel">
+					<ResizablePanel defaultSize={75}>
+						<main className="editor-panel">
 						<div className="editor-section">
 							<label className="editor-label">Expression Editor</label>
 							<div className="editor-wrapper dark-editor">
@@ -192,8 +198,9 @@ export const DemoPage: React.FC = () => {
 							</ul>
 						</div>
 					</main>
-				</div>
-			</div>
+				</ResizablePanel>
+			</ResizablePanelGroup>
 		</div>
+	</div>
 	);
 };
