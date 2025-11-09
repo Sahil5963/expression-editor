@@ -1,12 +1,12 @@
 /**
- * react-expression-editor
+ * react-dynamic-expression-editor
  *
  * A powerful React component for expression editing with autocomplete,
  * syntax highlighting, and customizable theming. Zero CSS imports required!
  *
  * @example
  * ```tsx
- * import { ExpressionEditor } from 'react-expression-editor';
+ * import { ExpressionEditor } from 'react-dynamic-expression-editor';
  *
  * function App() {
  *   const [expr, setExpr] = useState('');

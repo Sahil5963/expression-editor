@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { ExpressionEditor, type ExpressionEditorRef, type AutocompleteData, type Segment } from 'react-expression-editor';
+import { ExpressionEditor, type ExpressionEditorRef, type AutocompleteData, type Segment } from 'react-dynamic-expression-editor';
 import './ExpressionPlayground.css';
 
 /**

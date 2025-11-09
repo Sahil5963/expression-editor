@@ -1,4 +1,4 @@
-# react-expression-editor
+# react-dynamic-expression-editor
 
 A powerful React expression editor component with autocomplete, syntax highlighting, and customizable theming. **Zero CSS imports required!**
 
@@ -17,17 +17,17 @@ A powerful React expression editor component with autocomplete, syntax highlight
 ## 📦 Installation
 
 ```bash
-npm install react-expression-editor
+npm install react-dynamic-expression-editor
 # or
-pnpm add react-expression-editor
+pnpm add react-dynamic-expression-editor
 # or
-yarn add react-expression-editor
+yarn add react-dynamic-expression-editor
 ```
 
 ## 🚀 Quick Start
 
 ```tsx
-import { ExpressionEditor } from 'react-expression-editor';
+import { ExpressionEditor } from 'react-dynamic-expression-editor';
 import { useState } from 'react';
 
 function App() {

@@ -1,5 +1,5 @@
 {
-  "name": "react-expression-editor",
+  "name": "react-dynamic-expression-editor",
   "version": "1.0.0",
   "description": "React package for n8n Expression Editor with full autocomplete and CodeMirror support",
   "type": "module",
