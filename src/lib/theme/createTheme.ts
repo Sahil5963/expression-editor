@@ -46,8 +46,6 @@ export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: nu
 			borderStyle: theme.border.style,
 			borderColor: cssVar(CSS_VARIABLES.BORDER_COLOR, theme.colors.border),
 			borderRadius: cssVar(CSS_VARIABLES.BORDER_RADIUS, theme.border.radius),
-			borderTopLeftRadius: '0',
-			borderBottomLeftRadius: '0',
 			...(isSingleLine ? { overflow: 'hidden' } : {}),
 		},
 
