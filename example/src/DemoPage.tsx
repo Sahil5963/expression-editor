@@ -115,10 +115,14 @@ export const DemoPage: React.FC = () => {
 			{/* Simple Header */}
 			<header className="demo-header">
 				<div className="demo-container">
-					<h1 className="demo-title">Expression Editor Demo</h1>
+					<h1 className="demo-title">Dynamic Expression Editor for Prompts & Workflows</h1>
 					<p className="demo-subtitle">
-						Drag variables from the left panel into the editor to build dynamic expressions
+						Build dynamic input fields that combine static text with runtime variables from APIs,
+						code blocks, or any data source. Perfect for agent flows, prompt engineering, and workflow automation.
 					</p>
+					<div className="install-command">
+						<code>npm install react-dynamic-expression-editor</code>
+					</div>
 					<Link to="/lab" className="lab-link">
 						Advanced Playground →
 					</Link>
