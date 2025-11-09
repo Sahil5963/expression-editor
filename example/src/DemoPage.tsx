@@ -289,7 +289,7 @@ export const DemoPage: React.FC = () => {
 							<div className="editor-wrapper dark-editor">
 								<ExpressionEditor
 									value={expression}
-									onChange={({ value }) => setExpression(value)}
+									onChange={(data: { value: string }) => setExpression(data.value)}
 									autocompleteData={apiData || {}}
 									placeholder="Drag variables here or type {{ to start..."
 									rows={6}

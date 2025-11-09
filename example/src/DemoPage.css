@@ -87,6 +87,187 @@
   .demo-layout {
     flex-direction: column;
   }
+
+  .data-panel {
+    border-radius: 0.75rem 0.75rem 0 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: none;
+  }
+
+  .editor-panel {
+    border-radius: 0 0 0.75rem 0.75rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: none;
+  }
+
+  .json-tree {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 640px) {
+  .demo-container {
+    padding: 0 1rem;
+  }
+
+  .demo-header {
+    padding: 1.5rem 0 1rem;
+  }
+
+  .demo-title {
+    font-size: 1.125rem;
+  }
+
+  .demo-subtitle {
+    font-size: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .install-command {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    padding: 0.625rem 0.875rem;
+  }
+
+  .install-command code {
+    font-size: 0.688rem;
+  }
+
+  .install-command .copy-button {
+    align-self: center;
+    margin-top: 0.25rem;
+  }
+
+  .demo-layout {
+    padding: 1rem 0;
+  }
+
+  .endpoint-selector {
+    gap: 0.375rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .endpoint-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.688rem;
+  }
+
+  .json-tree {
+    font-size: 0.688rem;
+    padding: 0.75rem 1rem;
+    max-height: 250px;
+  }
+
+  .panel-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .panel-title {
+    font-size: 0.813rem;
+  }
+
+  .panel-subtitle {
+    font-size: 0.688rem;
+  }
+
+  .panel-footer {
+    padding: 0.75rem 1rem;
+  }
+
+  .hint {
+    font-size: 0.688rem;
+  }
+
+  .editor-panel {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .editor-section,
+  .output-section,
+  .info-section {
+    padding-bottom: 1rem;
+  }
+
+  .editor-label,
+  .output-label {
+    font-size: 0.688rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .dark-editor .cm-editor {
+    padding: 0.75rem 1rem;
+    min-height: 7rem;
+  }
+
+  .dark-editor {
+    --expr-editor-font-size: 0.75rem;
+    --expr-editor-line-height: 1.6;
+  }
+
+  .output-box {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+  }
+
+  .info-title {
+    font-size: 0.75rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .info-list {
+    gap: 0.375rem;
+  }
+
+  .info-list li {
+    font-size: 0.688rem;
+    padding-left: 1.25rem;
+  }
+
+  .info-list code {
+    font-size: 0.75rem;
+  }
+
+  .custom-json-input {
+    padding: 0.75rem 1rem;
+  }
+
+  .json-textarea {
+    min-height: 100px;
+    font-size: 0.688rem;
+    padding: 0.625rem;
+  }
+
+  .json-submit-btn {
+    font-size: 0.688rem;
+    padding: 0.5rem 0.875rem;
+  }
+
+  .json-key {
+    font-size: 0.688rem;
+  }
+
+  .json-type {
+    font-size: 0.688rem;
+  }
+
+  .json-value {
+    font-size: 0.688rem;
+  }
+
+  .data-panel,
+  .editor-panel {
+    border-radius: 0.5rem;
+  }
+
+  .data-panel {
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .editor-panel {
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+  }
 }
 
 /* Data Panel (Left) */

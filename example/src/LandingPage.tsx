@@ -108,7 +108,7 @@ export const LandingPage: React.FC = () => {
 							<div className="editor-wrapper dark-editor">
 								<ExpressionEditor
 									value={expression}
-									onChange={({ value }) => setExpression(value)}
+									onChange={(data: { value: string }) => setExpression(data.value)}
 									autocompleteData={autocompleteData}
 									placeholder="Type {{ to start..."
 									rows={1}
