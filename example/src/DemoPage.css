@@ -64,7 +64,6 @@
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-	height: calc(100vh - 200px);
 }
 
 .panel-header {
@@ -123,6 +122,7 @@
 	padding: 1rem 1.5rem;
 	font-family: 'Monaco', 'Menlo', monospace;
 	font-size: 0.813rem;
+	max-height: 600px;
 }
 
 .json-node {
@@ -238,22 +238,27 @@
 	display: flex;
 	flex-direction: column;
 	gap: 1.5rem;
-	padding-left: 2rem;
+	background: rgba(255, 255, 255, 0.02);
+	border: 1px solid rgba(255, 255, 255, 0.05);
+	border-radius: 0 0.75rem 0.75rem 0;
+	border-left: none;
+	padding: 1.5rem;
 }
 
 .editor-section,
 .output-section,
 .info-section {
-	background: rgba(255, 255, 255, 0.02);
-	border: 1px solid rgba(255, 255, 255, 0.05);
-	border-radius: 0.75rem;
-	padding: 1.5rem;
+	background: transparent;
+	border: none;
+	border-radius: 0;
+	padding: 0;
+	padding-bottom: 1.5rem;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* First section rounded on right side to match */
-.editor-section {
-	border-radius: 0 0.75rem 0.75rem 0.75rem;
-	border-left: 1px solid rgba(255, 255, 255, 0.05);
+.info-section {
+	border-bottom: none;
+	padding-bottom: 0;
 }
 
 .editor-label,
