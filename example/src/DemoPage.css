@@ -59,7 +59,8 @@
 .data-panel {
 	background: rgba(255, 255, 255, 0.02);
 	border: 1px solid rgba(255, 255, 255, 0.05);
-	border-radius: 0.75rem;
+	border-radius: 0.75rem 0 0 0.75rem;
+	border-right: none;
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
@@ -237,6 +238,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 1.5rem;
+	padding-left: 2rem;
 }
 
 .editor-section,
@@ -246,6 +248,12 @@
 	border: 1px solid rgba(255, 255, 255, 0.05);
 	border-radius: 0.75rem;
 	padding: 1.5rem;
+}
+
+/* First section rounded on right side to match */
+.editor-section {
+	border-radius: 0 0.75rem 0.75rem 0.75rem;
+	border-left: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .editor-label,
