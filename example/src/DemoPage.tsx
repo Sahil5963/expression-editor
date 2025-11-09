@@ -178,7 +178,7 @@ export const DemoPage: React.FC = () => {
 						<div className="output-section">
 							<label className="output-label">Current Expression</label>
 							<div className="output-box">
-								<code>{expression || '(empty)'}</code>
+								<code>{expression.replace(/^=/, '') || '(empty)'}</code>
 							</div>
 						</div>
 
