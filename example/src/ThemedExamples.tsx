@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ExpressionEditor, type AutocompleteData, darkTheme, lightTheme } from 'react-dynamic-expression-editor';
 
 // Move data outside component to prevent re-creation on every render
