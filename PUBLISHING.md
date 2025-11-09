@@ -41,7 +41,7 @@ Link the package locally:
 pnpm link --global
 
 # In another project
-pnpm link --global @n8n/react-expression-editor
+pnpm link --global react-expression-editor
 ```
 
 #### 4. Publish to npm
@@ -73,13 +73,13 @@ The `example/` folder is NOT published (development only).
 Users can install with:
 
 ```bash
-npm install @n8n/react-expression-editor
+npm install react-expression-editor
 ```
 
 And use it:
 
 ```tsx
-import { ExpressionEditor } from '@n8n/react-expression-editor';
+import { ExpressionEditor } from 'react-expression-editor';
 
 <ExpressionEditor value={expr} onChange={setExpr} />
 ```
@@ -87,7 +87,7 @@ import { ExpressionEditor } from '@n8n/react-expression-editor';
 ## Package Structure
 
 ```
-@n8n/react-expression-editor (published)
+react-expression-editor (published)
 ├── dist/
 │   ├── index.js          # ESM entry
 │   ├── index.cjs         # CommonJS entry

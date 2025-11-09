@@ -59,8 +59,7 @@
 ## 🎯 Usage Example
 
 ```tsx
-import { ExpressionEditor } from '@n8n/react-expression-editor';
-import '@n8n/react-expression-editor/styles.css';
+import { ExpressionEditor } from 'react-expression-editor';
 
 function MyComponent() {
   const [value, setValue] = useState('{{json.name}}');
@@ -242,11 +241,10 @@ User Input → CodeMirror → Hook → Component → onChange callback → Paren
 
 ```bash
 # Install dependencies
-npm install @n8n/react-expression-editor
+npm install react-expression-editor
 
 # Use in your app
-import { ExpressionEditor } from '@n8n/react-expression-editor';
-import '@n8n/react-expression-editor/styles.css';
+import { ExpressionEditor } from 'react-expression-editor';
 ```
 
 ## 💡 Design Decisions

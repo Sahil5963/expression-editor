@@ -1,5 +1,5 @@
 {
-  "name": "@n8n/react-expression-editor",
+  "name": "react-expression-editor",
   "version": "1.0.0",
   "description": "React package for n8n Expression Editor with full autocomplete and CodeMirror support",
   "type": "module",

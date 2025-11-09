@@ -83,7 +83,7 @@ example/src/
                   ▼
 ┌─────────────────────────────────────────────────┐
 │  3. Example detects change in node_modules/     │
-│     @n8n/react-expression-editor                │
+│     react-expression-editor                     │
 └─────────────────┬───────────────────────────────┘
                   │
                   ▼
@@ -210,7 +210,7 @@ export { myFeature } from './lib/myFeature';
 
 # 4. Use in example
 # example/src/ExpressionPlayground.tsx
-import { myFeature } from '@n8n/react-expression-editor';
+import { myFeature } from 'react-expression-editor';
 ```
 
 Changes auto-reload! ✨

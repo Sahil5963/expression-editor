@@ -1,5 +1,5 @@
 {
-  "name": "@n8n/react-expression-editor-example",
+  "name": "react-expression-editor-example",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@n8n/react-expression-editor": "workspace:*",
+    "react-expression-editor": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

@@ -197,11 +197,11 @@ Import and use preset themes:
 
 ```tsx
 import { 
-  ExpressionEditor, 
+  ExpressionEditor,
   darkTheme,    // Dark theme
-  lightTheme,   // Light theme  
+  lightTheme,   // Light theme
   n8nTheme      // n8n branded theme
-} from '@n8n/react-expression-editor';
+} from 'react-expression-editor';
 
 <ExpressionEditor theme={darkTheme} />
 <ExpressionEditor theme={lightTheme} />
@@ -211,7 +211,7 @@ import {
 ## Class Names for Targeting
 
 ```typescript
-import { EDITOR_CLASS_NAMES } from '@n8n/react-expression-editor';
+import { EDITOR_CLASS_NAMES } from 'react-expression-editor';
 
 // Available constants:
 EDITOR_CLASS_NAMES.ROOT              // 'expression-editor'
@@ -282,7 +282,7 @@ All editors inherit these values!
 ## Complete Example
 
 ```tsx
-import { ExpressionEditor, darkTheme } from '@n8n/react-expression-editor';
+import { ExpressionEditor, darkTheme } from 'react-expression-editor';
 
 function App() {
   return (

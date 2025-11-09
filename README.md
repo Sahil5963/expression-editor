@@ -1,4 +1,4 @@
-# @n8n/react-expression-editor
+# react-expression-editor
 
 A powerful React expression editor component with autocomplete, syntax highlighting, and customizable theming. **Zero CSS imports required!**
 
@@ -17,17 +17,17 @@ A powerful React expression editor component with autocomplete, syntax highlight
 ## 📦 Installation
 
 ```bash
-npm install @n8n/react-expression-editor
+npm install react-expression-editor
 # or
-pnpm add @n8n/react-expression-editor
+pnpm add react-expression-editor
 # or
-yarn add @n8n/react-expression-editor
+yarn add react-expression-editor
 ```
 
 ## 🚀 Quick Start
 
 ```tsx
-import { ExpressionEditor } from '@n8n/react-expression-editor';
+import { ExpressionEditor } from 'react-expression-editor';
 import { useState } from 'react';
 
 function App() {

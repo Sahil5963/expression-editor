@@ -1,12 +1,12 @@
 /**
- * @n8n/react-expression-editor
+ * react-expression-editor
  *
  * A powerful React component for expression editing with autocomplete,
  * syntax highlighting, and customizable theming. Zero CSS imports required!
  *
  * @example
  * ```tsx
- * import { ExpressionEditor } from '@n8n/react-expression-editor';
+ * import { ExpressionEditor } from 'react-expression-editor';
  *
  * function App() {
  *   const [expr, setExpr] = useState('');
