@@ -1,30 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import { ExpressionEditor } from 'react-dynamic-expression-editor';
-import { Link } from 'react-router-dom';
-import { ChevronRight, ChevronDown, GripVertical } from 'lucide-react';
+import { ChevronRight, ChevronDown, GripVertical, Copy, Check } from 'lucide-react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from './components/ui/resizable';
 import './DemoPage.css';
 
 export const DemoPage: React.FC = () => {
-	const [expression, setExpression] = useState('{{user.name}}');
-	const [apiData, setApiData] = useState<any>(null);
-	const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set(['root']));
-	const [selectedEndpoint, setSelectedEndpoint] = useState<string>('users/1');
+	const mockData = {
+		message: {
+			content: 'Can you help me reset my password?',
+			role: 'user',
+			timestamp: '2024-01-20T14:30:00Z',
+			id: 'msg_abc123',
+			metadata: {
+				language: 'en',
+				channel: 'web',
+				deviceType: 'desktop',
+			},
+		},
+		user: {
+			name: 'Sarah Johnson',
+			email: 'sarah.j@company.com',
+			id: 'usr_12345',
+			plan: 'premium',
+			joinedAt: '2023-06-15',
+			profile: {
+				company: 'TechCorp Inc',
+				role: 'Product Manager',
+				timezone: 'America/New_York',
+			},
+			preferences: {
+				notifications: {
+					email: true,
+					sms: false,
+					push: true,
+				},
+				language: 'en-US',
+			},
+		},
+		conversation: {
+			id: 'conv_789',
+			messageCount: 5,
+			topic: 'Account Support',
+			history: [
+				{ role: 'user', content: 'Hello', timestamp: '14:25:00' },
+				{ role: 'assistant', content: 'Hi! How can I help?', timestamp: '14:25:02' },
+			],
+			tags: ['password', 'account', 'support'],
+			metadata: {
+				source: 'web-chat',
+				sessionId: 'sess_xyz',
+			},
+		},
+		context: {
+			previousQuery: 'login issues',
+			userIntent: 'password_reset',
+			sentiment: 'neutral',
+			sessionDuration: 245,
+			analytics: {
+				pageViews: 12,
+				lastPage: '/account/settings',
+				referrer: 'google.com',
+			},
+		},
+		variables: {
+			companyName: 'Acme Corp',
+			supportEmail: 'support@acme.com',
+			ticketId: 'TKT-4523',
+			priority: 'high',
+			workflow: {
+				name: 'Password Reset Flow',
+				step: 'verification',
+				status: 'in_progress',
+			},
+		},
+	};
 
-	const endpoints = [
-		{ label: 'User', value: 'users/1' },
-		{ label: 'Post', value: 'posts/1' },
-		{ label: 'Album', value: 'albums/1' },
-		{ label: 'Photo', value: 'photos/1' },
-		{ label: 'Todo', value: 'todos/1' },
+	const datasets = [
+		{ label: 'User', value: 'user' },
+		{ label: 'Message', value: 'message' },
+		{ label: 'Conversation', value: 'conversation' },
+		{ label: 'Context', value: 'context' },
+		{ label: 'Variables', value: 'variables' },
 	];
 
+	const [expression, setExpression] = useState('Hello {{user.name}}! Your email is {{user.email}} and you are on the {{user.plan}} plan.');
+	const [apiData, setApiData] = useState<any>(mockData.user);
+	const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set(['root']));
+	const [selectedDataset, setSelectedDataset] = useState<string>('user');
+	const [copied, setCopied] = useState(false);
+	const [showCustomJson, setShowCustomJson] = useState(false);
+	const [customJsonInput, setCustomJsonInput] = useState('');
+
 	useEffect(() => {
-		fetch(`https://jsonplaceholder.typicode.com/${selectedEndpoint}`)
-			.then((res) => res.json())
-			.then((data) => setApiData(data))
-			.catch((err) => console.error('Failed to fetch data:', err));
-	}, [selectedEndpoint]);
+		setApiData(mockData[selectedDataset as keyof typeof mockData]);
+	}, [selectedDataset]);
 
 	const toggleExpand = (path: string) => {
 		setExpandedPaths((prev) => {
@@ -41,6 +110,27 @@ export const DemoPage: React.FC = () => {
 	const handleDragStart = (e: React.DragEvent, path: string) => {
 		e.dataTransfer.setData('text/plain', `{{${path}}}`);
 		e.dataTransfer.effectAllowed = 'copy';
+	};
+
+	const handleCopy = async () => {
+		try {
+			await navigator.clipboard.writeText('npm install react-dynamic-expression-editor');
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		} catch (err) {
+			console.error('Failed to copy:', err);
+		}
+	};
+
+	const handleCustomJsonSubmit = () => {
+		try {
+			const parsed = JSON.parse(customJsonInput);
+			setApiData(parsed);
+			setSelectedDataset('');
+			setExpandedPaths(new Set(['root']));
+		} catch (err) {
+			alert('Invalid JSON. Please check your input.');
+		}
 	};
 
 	const renderJsonTree = (data: any, parentPath: string = 'root', parentKey: string = 'data'): JSX.Element[] => {
@@ -114,18 +204,18 @@ export const DemoPage: React.FC = () => {
 		<div className="demo-page">
 			{/* Simple Header */}
 			<header className="demo-header">
-				<div className="demo-container">
-					<h1 className="demo-title">Dynamic Expression Editor for Prompts & Workflows</h1>
+				<div className="demo-container header-content">
+					<h1 className="demo-title">react-dynamic-expression-editor</h1>
 					<p className="demo-subtitle">
 						Build dynamic input fields that combine static text with runtime variables from APIs,
 						code blocks, or any data source. Perfect for agent flows, prompt engineering, and workflow automation.
 					</p>
 					<div className="install-command">
 						<code>npm install react-dynamic-expression-editor</code>
+						<button onClick={handleCopy} className="copy-button" title="Copy to clipboard">
+							{copied ? <Check size={18} /> : <Copy size={18} />}
+						</button>
 					</div>
-					<Link to="/lab" className="lab-link">
-						Advanced Playground →
-					</Link>
 				</div>
 			</header>
 
@@ -137,20 +227,43 @@ export const DemoPage: React.FC = () => {
 						<aside className="data-panel">
 						<div className="panel-header">
 							<h3 className="panel-title">Available Data</h3>
-							<p className="panel-subtitle">JSONPlaceholder API</p>
+							<p className="panel-subtitle">Chatbot & prompt context data</p>
 						</div>
 
 						<div className="endpoint-selector">
-							{endpoints.map((endpoint) => (
+							{datasets.map((dataset) => (
 								<button
-									key={endpoint.value}
-									onClick={() => setSelectedEndpoint(endpoint.value)}
-									className={`endpoint-btn ${selectedEndpoint === endpoint.value ? 'active' : ''}`}
+									key={dataset.value}
+									onClick={() => {
+										setSelectedDataset(dataset.value);
+										setShowCustomJson(false);
+									}}
+									className={`endpoint-btn ${selectedDataset === dataset.value && !showCustomJson ? 'active' : ''}`}
 								>
-									{endpoint.label}
+									{dataset.label}
 								</button>
 							))}
+							<button
+								onClick={() => setShowCustomJson(!showCustomJson)}
+								className={`endpoint-btn ${showCustomJson ? 'active' : ''}`}
+							>
+								Custom JSON
+							</button>
 						</div>
+
+						{showCustomJson && (
+							<div className="custom-json-input">
+								<textarea
+									value={customJsonInput}
+									onChange={(e) => setCustomJsonInput(e.target.value)}
+									placeholder='{"key": "value", "nested": {"field": 123}}'
+									className="json-textarea"
+								/>
+								<button onClick={handleCustomJsonSubmit} className="json-submit-btn">
+									Load JSON
+								</button>
+							</div>
+						)}
 
 						<div className="json-tree">
 							{apiData ? (
