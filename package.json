@@ -1,6 +1,6 @@
 {
   "name": "react-dynamic-expression-editor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React package for n8n Expression Editor with full autocomplete and CodeMirror support",
   "type": "module",
   "main": "./dist/index.cjs",
