@@ -38,6 +38,8 @@ export interface ThemeColors {
 	resolvableInvalidBg?: string;
 	resolvablePendingFg?: string;
 	resolvablePendingBg?: string;
+	resolvableUnresolvedFg?: string;
+	resolvableUnresolvedBg?: string;
 
 	// Autocomplete
 	autocompleteBackground?: string;
@@ -140,4 +142,6 @@ export const CSS_VARIABLES = {
 	RESOLVABLE_INVALID_BG: '--expr-editor-resolvable-invalid-bg',
 	RESOLVABLE_PENDING_FG: '--expr-editor-resolvable-pending-fg',
 	RESOLVABLE_PENDING_BG: '--expr-editor-resolvable-pending-bg',
+	RESOLVABLE_UNRESOLVED_FG: '--expr-editor-resolvable-unresolved-fg',
+	RESOLVABLE_UNRESOLVED_BG: '--expr-editor-resolvable-unresolved-bg',
 } as const;

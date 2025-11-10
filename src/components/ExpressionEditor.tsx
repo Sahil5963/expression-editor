@@ -9,7 +9,6 @@ import { useExpressionEditor } from '@/lib/hooks/useExpressionEditor';
 import { n8nLang } from '@/lib/codemirror-plugins/n8nLang';
 import { editorKeymap } from '@/lib/codemirror-plugins/keymap';
 import { expressionCloseBrackets } from '@/lib/codemirror-plugins/expressionCloseBrackets';
-import { infoBoxTooltips } from '@/lib/codemirror-plugins/tooltips/InfoBoxTooltip';
 import { createEditorTheme, EDITOR_CLASS_NAMES, type ThemeConfig } from '@/lib/theme';
 import { createDefaultAutocompleteProvider, type AutocompleteProvider, type AutocompleteData } from '@/lib/autocomplete';
 
@@ -157,7 +156,6 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 				n8nLang(),
 				history(),
 				expressionCloseBrackets(),
-				infoBoxTooltips(),
 			];
 
 			// Block Enter key for single-line inputs
@@ -185,6 +183,8 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 						icons: false,
 						aboveCursor: true,
 						closeOnBlur: false,
+						tooltipClass: () => 'cm-completionInfo',
+						activateOnTyping: true,
 					}),
 				);
 			}

@@ -30,7 +30,7 @@ import {
 } from '@/app/composables/useWorkflowHelpers';
 import { highlighter } from '../plugins/codemirror/resolvableHighlighter';
 import { closeCursorInfoBox } from '../plugins/codemirror/tooltips/InfoBoxTooltip';
-import type { Html, Plaintext, RawSegment, Resolvable, Segment } from '@/app/types/expressions';
+import type { Html, Plaintext, RawSegment, Resolvable, Segment } from '@/types/expressions';
 import { getExpressionErrorMessage, getResolvableState } from '@/lib/utils';
 import { closeCompletion, completionStatus } from '@codemirror/autocomplete';
 import {

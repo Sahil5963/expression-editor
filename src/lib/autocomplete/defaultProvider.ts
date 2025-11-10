@@ -92,15 +92,9 @@ export function createDefaultAutocompleteProvider(data: AutocompleteData): Autoc
 
 		const text = word.text;
 
-		// Empty or just starting - show all root variables
+		// Empty or just starting - show all root variables with rich info
 		if (text === '' || context.explicit) {
-			const rootCompletions: Completion[] = Object.keys(data).map((key) => {
-				return {
-					label: key,
-					type: 'variable',
-					info: `Root variable: ${key}`,
-				};
-			});
+			const rootCompletions = getCompletionsForObject(data);
 
 			return {
 				from: word.from,
@@ -143,19 +137,16 @@ export function createDefaultAutocompleteProvider(data: AutocompleteData): Autoc
 
 		// Typed "json" (no dot yet) - filter root completions
 		if (text.length > 0) {
-			const rootCompletions: Completion[] = Object.keys(data)
-				.filter((key) => key.toLowerCase().startsWith(text.toLowerCase()))
-				.map((key) => ({
-					label: key,
-					type: 'variable',
-					info: `Root variable: ${key}`,
-				}));
+			const allRootCompletions = getCompletionsForObject(data);
+			const filtered = allRootCompletions.filter((c) =>
+				c.label.toLowerCase().startsWith(text.toLowerCase())
+			);
 
-			if (rootCompletions.length === 0) return null;
+			if (filtered.length === 0) return null;
 
 			return {
 				from: word.from,
-				options: rootCompletions,
+				options: filtered,
 			};
 		}
 

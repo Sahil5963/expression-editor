@@ -59,9 +59,33 @@ export const useExpressionEditor = (
 	const [hasFocus, setHasFocus] = useState(false);
 	const [segments, setSegments] = useState<{ display: Segment[] }>({ display: [] });
 	const [selection, setSelection] = useState<SelectionRange>(EditorSelection.cursor(0));
+	const previousSegmentsRef = useRef<Segment[]>([]);
+	const parseCountRef = useRef(0);
+
+	// Helper to validate if a variable path exists in data
+	const validatePath = useCallback((path: string, data: IDataObject): boolean => {
+		const parts = path.split('.');
+		let current: any = data;
+
+		for (const part of parts) {
+			if (current && typeof current === 'object' && part in current) {
+				current = current[part];
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}, []);
 
 	// Parse and highlight {{ }} expressions using the syntax tree
 	const parseAndHighlight = useCallback((text: string, view: EditorView) => {
+		parseCountRef.current++;
+		const parseId = parseCountRef.current;
+
+		console.group(`🔍 [Parse #${parseId}] parseAndHighlight`);
+		console.log('📝 Text:', text);
+		console.log('📚 Available data keys:', Object.keys(additionalData));
+
 		const tree = syntaxTree(view.state);
 		const resolvables: Segment[] = [];
 
@@ -72,8 +96,16 @@ export const useExpressionEditor = (
 				const to = node.to;
 				const content = text.slice(from + 2, to - 2).trim(); // Remove {{ and }}
 
-				// Simple validation - just check if it's not empty
-				const state = content.length > 0 ? 'valid' : 'invalid';
+				let state: 'valid' | 'invalid' | 'unresolved' = 'invalid';
+
+				if (content.length === 0) {
+					state = 'invalid';
+				} else {
+					// Validate against data
+					const pathExists = validatePath(content, additionalData);
+					state = pathExists ? 'valid' : 'unresolved';
+					console.log(`🔎 Validating "${content}": ${pathExists ? '✅ exists' : '❌ not found in data'}`);
+				}
 
 				resolvables.push({
 					from,
@@ -81,16 +113,39 @@ export const useExpressionEditor = (
 					kind: 'resolvable',
 					state,
 				} as Segment);
+
+				console.log(`✅ Found resolvable [${from}-${to}]: "${content}" (state: ${state})`);
 			}
 		});
 
+		console.log(`📊 Total resolvables found: ${resolvables.length}`);
+		console.log('📦 Previous segments:', previousSegmentsRef.current.length);
+
 		setSegments({ display: resolvables });
 
-		// Apply highlighting
-		if (resolvables.length > 0) {
-			highlighter.addColor(view, resolvables);
+		// Remove old highlighting from previous resolvables (as plaintext)
+		if (previousSegmentsRef.current.length > 0) {
+			const plaintext = previousSegmentsRef.current.map(seg => ({
+				...seg,
+				kind: 'plaintext' as const,
+			}));
+			console.log(`🧹 Removing ${plaintext.length} old highlights:`, plaintext);
+			highlighter.removeColor(view, plaintext as any);
 		}
-	}, []);
+
+		// Apply new highlighting
+		if (resolvables.length > 0) {
+			console.log(`🎨 Applying ${resolvables.length} new highlights:`, resolvables);
+			highlighter.addColor(view, resolvables as any);
+		} else {
+			console.log('⚠️ No resolvables to highlight');
+		}
+
+		// Update the previous segments reference
+		previousSegmentsRef.current = resolvables;
+		console.log('💾 Updated previousSegments cache');
+		console.groupEnd();
+	}, [additionalData, validatePath]);
 
 	const readEditorValue = useCallback((): string => {
 		return editor?.state.doc.toString() || '';
@@ -164,6 +219,16 @@ export const useExpressionEditor = (
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []); // Only run on mount
+
+	// Re-validate highlighting when data changes
+	useEffect(() => {
+		if (editor) {
+			const content = editor.state.doc.toString();
+			console.log('📊 Data changed, re-validating highlighting...');
+			parseAndHighlight(content, editor);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [additionalData]);
 
 	// Watch for value changes
 	useEffect(() => {

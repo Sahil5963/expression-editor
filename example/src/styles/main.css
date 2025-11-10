@@ -1,5 +1,6 @@
 @import './variables.css';
-@import './autocomplete.css';
+@import './expression-editor.css';
+@import './autocomplete-theme.css';
 
 *,
 *::before,
@@ -14,7 +15,7 @@ body {
 	font-size: var(--font-size--md);
 	line-height: var(--line-height--xl);
 	color: var(--color--text);
-	background: #f5f5f5;
+	background: var(--color--background--light-2);
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }

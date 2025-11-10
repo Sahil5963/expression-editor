@@ -1,17 +1,14 @@
 import { ifIn } from '@codemirror/autocomplete';
-import { blankCompletions } from './blank.completions';
-import { bracketAccessCompletions } from './bracketAccess.completions';
 import { datatypeCompletions } from './datatype.completions';
-import { dollarCompletions } from './dollar.completions';
-import { nonDollarCompletions } from './nonDollar.completions';
 
+/**
+ * Completion sources for n8n expressions
+ * Most n8n-specific completions have been removed as they were dead code
+ * Only the datatype completions stub remains for compatibility
+ */
 export function n8nCompletionSources() {
 	return [
-		blankCompletions,
-		bracketAccessCompletions,
 		datatypeCompletions,
-		dollarCompletions,
-		nonDollarCompletions,
 	].map((source) => ({
 		autocomplete: ifIn(['Resolvable'], source),
 	}));

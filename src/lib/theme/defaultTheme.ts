@@ -40,6 +40,8 @@ export const defaultTheme: Required<ThemeConfig> = {
 		resolvableInvalidBg: 'rgba(239, 68, 68, 0.15)',
 		resolvablePendingFg: '#f59e0b',
 		resolvablePendingBg: 'rgba(245, 158, 11, 0.15)',
+		resolvableUnresolvedFg: '#60a5fa',
+		resolvableUnresolvedBg: 'rgba(96, 165, 250, 0.15)',
 
 		// Autocomplete
 		autocompleteBackground: '#2d3748',

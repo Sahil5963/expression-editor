@@ -106,6 +106,13 @@ export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: nu
 			borderRadius: theme.border.radiusSm,
 		},
 
+		'.cm-unresolved-resolvable': {
+			color: cssVar(CSS_VARIABLES.RESOLVABLE_UNRESOLVED_FG, theme.colors.resolvableUnresolvedFg),
+			backgroundColor: cssVar(CSS_VARIABLES.RESOLVABLE_UNRESOLVED_BG, theme.colors.resolvableUnresolvedBg),
+			padding: '0 2px',
+			borderRadius: theme.border.radiusSm,
+		},
+
 		// Autocomplete styles
 		'.cm-tooltip-autocomplete': {
 			backgroundColor: cssVar(CSS_VARIABLES.AUTOCOMPLETE_BG, theme.colors.autocompleteBackground),
@@ -113,13 +120,15 @@ export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: nu
 			borderRadius: theme.border.radius,
 			boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
 			fontFamily: theme.typography.fontFamily,
+			overflow: 'visible !important', // Allow info tooltip to show outside
 			'& > ul': {
 				maxHeight: '300px',
 				overflowY: 'auto',
+				overflowX: 'visible',
 				fontFamily: theme.typography.fontFamily,
 			},
 			'& > ul > li': {
-				padding: `${theme.spacing['3xs']} ${theme.spacing['2xs']}`,
+				padding: '2px 4px',
 				color: cssVar(CSS_VARIABLES.AUTOCOMPLETE_TEXT, theme.colors.autocompleteText),
 				cursor: 'pointer',
 			},
@@ -146,9 +155,13 @@ export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: nu
 			backgroundColor: cssVar(CSS_VARIABLES.AUTOCOMPLETE_BG, theme.colors.autocompleteBackground),
 			border: `${theme.border.width} ${theme.border.style} ${cssVar(CSS_VARIABLES.AUTOCOMPLETE_BORDER, theme.colors.autocompleteBorder)}`,
 			borderRadius: theme.border.radius,
-			padding: theme.spacing['2xs'],
+			padding: '6px 8px',
 			color: cssVar(CSS_VARIABLES.AUTOCOMPLETE_TEXT, theme.colors.autocompleteText),
 			maxWidth: '300px',
+			boxShadow: '0 4px 6px rgba(0, 0, 0, 0.2)',
+			zIndex: '1000',
+			whiteSpace: 'pre-wrap',
+			wordWrap: 'break-word',
 		},
 
 		// Tooltip styles

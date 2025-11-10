@@ -1,0 +1,97 @@
+/* Expression Editor Theming - Using shadcn/ui variables */
+
+/* Map expression editor variables to shadcn color system */
+:root {
+	/* Expression Editor - Use existing color variables */
+	--expr-editor-bg: var(--color--background);
+	--expr-editor-bg-light: var(--color--background--light-3);
+	--expr-editor-text: var(--color--text);
+	--expr-editor-text-secondary: var(--color--text--tint-1);
+	--expr-editor-primary: var(--color--primary);
+	--expr-editor-caret: var(--color--primary);
+	--expr-editor-border: var(--color--foreground);
+	--expr-editor-radius: var(--radius);
+
+	/* Resolvable highlighting - Map to semantic colors with opacity */
+	--expr-editor-resolvable-valid-fg: var(--color--success);
+	--expr-editor-resolvable-valid-bg: color-mix(in srgb, var(--color--success) 15%, transparent);
+	--expr-editor-resolvable-invalid-fg: var(--color--danger);
+	--expr-editor-resolvable-invalid-bg: color-mix(in srgb, var(--color--danger) 15%, transparent);
+	--expr-editor-resolvable-pending-fg: var(--color--warning);
+	--expr-editor-resolvable-pending-bg: color-mix(in srgb, var(--color--warning) 15%, transparent);
+	--expr-editor-resolvable-unresolved-fg: var(--color--primary);
+	--expr-editor-resolvable-unresolved-bg: color-mix(in srgb, var(--color--primary) 15%, transparent);
+
+	/* Autocomplete - Use popover and foreground colors */
+	--expr-editor-autocomplete-bg: var(--color--foreground);
+	--expr-editor-autocomplete-text: var(--color--text--tint-3);
+	--expr-editor-autocomplete-border: var(--color--foreground--tint-1);
+	--expr-editor-autocomplete-hover-bg: var(--color--foreground--tint-1);
+	--expr-editor-autocomplete-selected-bg: var(--color--primary);
+}
+
+/* Expression Editor Component Styles */
+.expression-editor {
+	background: var(--expr-editor-bg);
+	border: 1px solid var(--expr-editor-border);
+	border-radius: var(--expr-editor-radius);
+	font-family: var(--font-family--monospace);
+	color: var(--expr-editor-text);
+}
+
+.expression-editor__input {
+	background: var(--expr-editor-bg-light);
+	border: 1px solid var(--expr-editor-border);
+	border-radius: var(--expr-editor-radius);
+	padding: var(--spacing--2xs);
+}
+
+/* CodeMirror Resolvable Highlighting */
+.cm-valid-resolvable {
+	color: var(--expr-editor-resolvable-valid-fg);
+	background-color: var(--expr-editor-resolvable-valid-bg);
+	border-radius: 2px;
+	padding: 1px 2px;
+}
+
+.cm-invalid-resolvable {
+	color: var(--expr-editor-resolvable-invalid-fg);
+	background-color: var(--expr-editor-resolvable-invalid-bg);
+	border-radius: 2px;
+	padding: 1px 2px;
+}
+
+.cm-pending-resolvable {
+	color: var(--expr-editor-resolvable-pending-fg);
+	background-color: var(--expr-editor-resolvable-pending-bg);
+	border-radius: 2px;
+	padding: 1px 2px;
+}
+
+.cm-unresolved-resolvable {
+	color: var(--expr-editor-resolvable-unresolved-fg);
+	background-color: var(--expr-editor-resolvable-unresolved-bg);
+	border-radius: 2px;
+	padding: 1px 2px;
+}
+
+/* CodeMirror Editor Customization */
+.cm-editor {
+	background: var(--expr-editor-bg);
+	color: var(--expr-editor-text);
+	border: 1px solid var(--expr-editor-border);
+	border-radius: var(--expr-editor-radius);
+}
+
+.cm-editor.cm-focused {
+	outline: 2px solid var(--expr-editor-primary);
+	outline-offset: 1px;
+}
+
+.cm-cursor {
+	border-left-color: var(--expr-editor-caret);
+}
+
+.cm-selectionBackground {
+	background-color: var(--color--primary--tint-3);
+}

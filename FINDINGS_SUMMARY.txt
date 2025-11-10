@@ -1,0 +1,275 @@
+================================================================================
+N8N CODEMIRROR PLUGINS - DEPENDENCY ANALYSIS FINDINGS
+================================================================================
+
+ANALYSIS DATE: November 10, 2025
+SCOPE: src/lib/codemirror-plugins/ directory and related imports
+GOAL: Understand n8n-specific dependencies and whether library can be standalone
+
+================================================================================
+1. KEY FINDINGS
+================================================================================
+
+FINDING 1: EXTENSIVE N8N STORE DEPENDENCIES
+Status: CONFIRMED - 3 stores used across 9+ files
+Impact: CRITICAL - Core to completion logic
+Abstraction: NONE - Direct calls, no abstraction layer
+
+  Store                           Usage Count    Critical?
+  ────────────────────────────────────────────────────────
+  useNDVStore()                   8 usages       YES (HIGH)
+  useWorkflowsStore()             5 usages       YES (HIGH)
+  useExternalSecretsStore()       1 usage        NO (MEDIUM)
+
+FINDING 2: MASSIVE I18N KEY HARDCODING
+Status: CONFIRMED - 775+ hardcoded keys across 7 files
+Impact: HIGH - All UI labels are n8n-specific keys
+Abstraction: PARTIAL - Stub returns keys as-is (not translations)
+
+  File                            Key Count     Example
+  ──────────────────────────────────────────────────────────
+  luxon.static.docs.ts            ~400          'codeNodeEditor.completer.luxon...'
+  luxon.instance.docs.ts          ~300          'codeNodeEditor.completer.luxon...'
+  constants.ts                    ~50           'codeNodeEditor.completer.$json'
+  dollar.completions.ts           7             'codeNodeEditor.completer.$vars'
+  infoBoxRenderer.ts              5             'codeNodeEditor.optional'
+  nonDollar.completions.ts        3             'codeNodeEditor.completer.dateTime'
+  nativesAutocompleteDocs/*       ~10           Various
+
+FINDING 3: TYPE DEFINITION PROBLEMS
+Status: CONFIRMED - Missing and conflicting type imports
+Impact: MEDIUM - Causes TypeScript compilation errors
+Issues:
+  - TargetNodeParameterContext: Used in 5 files, not defined
+  - Schema: Used in 2 files, not defined
+  - TargetItem: Referenced but not defined
+  - DocMetadata: Imported from both n8n-workflow AND locally defined
+  - Basic: Imported from both @/Interface AND locally defined
+
+FINDING 4: LIBRARY EXTRACTION WITHOUT ABSTRACTION
+Status: CONFIRMED - Code extracted from n8n but not refactored for standalone use
+Evidence: MIGRATION_SUMMARY.md explicitly notes:
+  "Many CodeMirror plugins depend on n8n-specific types from @/types/n8n-workflow"
+  "Files importing from @/Interface, @/app/composables, etc. need refactoring"
+Timeline: Extraction was incomplete, stubs created but not connected
+
+FINDING 5: STORE DEPENDENCIES ARE CORE, NOT PERIPHERAL
+Status: CONFIRMED - Completions cannot function without stores
+Evidence from code:
+  - resolveAutocompleteExpression() REQUIRES ndvStore to get input data
+  - autocompletableNodeNames() REQUIRES workflowsStore to find nodes
+  - isInHttpNodePagination() REQUIRES ndvStore for context
+  - Conditional secrets rendering REQUIRES externalSecretsStore
+Result: These are NOT "leftover" dependencies - they are ESSENTIAL
+
+================================================================================
+2. CRITICAL FILES IDENTIFIED
+================================================================================
+
+TIER 1 - CANNOT FUNCTION WITHOUT N8N CONTEXT:
+────────────────────────────────────────────
+
+completions/utils.ts
+  - Imports: useNDVStore (3x), useWorkflowsStore (5x)
+  - Exports: resolveAutocompleteExpression(), autocompletableNodeNames()
+  - Core logic for determining available completions
+  - No way to work standalone
+
+completions/constants.ts
+  - Imports: i18n [50+ keys]
+  - Defines: All completion items with i18n-keyed descriptions
+  - Cannot render readable UI without translations
+
+completions/dollar.completions.ts
+  - Imports: i18n [7x], useExternalSecretsStore [1x]
+  - Conditional rendering of $vars/$secrets based on enterprise flag
+  - UI text entirely n8n-keyed
+
+TIER 2 - SIGNIFICANT N8N DEPENDENCIES:
+
+completions/infoBoxRenderer.ts
+  - Imports: i18n [5x]
+  - Renders completion info boxes with n8n-keyed labels
+
+dragAndDrop.ts
+  - Imports: useNDVStore [1x]
+  - Uses n8n drag state tracking
+
+typescript/client/useTypescript.ts
+  - Imports: useNDVStore [2x], useWorkflowsStore [1x]
+  - Uses n8n stores for type resolution context
+
+TIER 3 - MODERATE I18N USAGE:
+
+completions/nativesAutocompleteDocs/luxon.static.docs.ts
+  - Imports: i18n [~400 keys]
+  - Can work with fallback (show keys instead of labels)
+
+completions/nativesAutocompleteDocs/luxon.instance.docs.ts
+  - Imports: i18n [~300 keys]
+  - Can work with fallback
+
+================================================================================
+3. WHAT CAN BE REMOVED/ABSTRACTED
+================================================================================
+
+CAN BE EASILY ABSTRACTED:
+  - useExternalSecretsStore() → Could default to false for standalone
+  - i18n system → Could provide default English labels
+  - Luxon documentation keys → Could use method names instead of i18n
+
+CANNOT BE EASILY REMOVED:
+  - useNDVStore() → Core to expression resolution
+  - useWorkflowsStore() → Core to node discovery
+  - Type system → Needed for TypeScript compilation
+
+EFFORT TO ABSTRACT ALL:
+  - 6-8 hours for full abstraction into dependency-injectable system
+  - 2-3 hours for n8n-specific completion with stubs
+  - 1-2 hours for minimal version without advanced features
+
+================================================================================
+4. ANSWER TO ORIGINAL QUESTIONS
+================================================================================
+
+Q: "Is this library meant to be n8n-specific or are these leftover dependencies?"
+
+ANSWER: BOTH
+  1. The library WAS EXTRACTED from n8n (leftover dependencies)
+  2. BUT these dependencies are CORE to functionality (not leftover)
+  3. Result: Library is PARTIALLY n8n-specific by design
+  
+Explanation:
+  - The codemirror-plugins are framework-agnostic (can be used anywhere)
+  - BUT the completion/autocomplete system is deeply n8n-specific
+  - The expression syntax itself is n8n-specific ($json, $binary, etc.)
+  - The stores provide workflow/node context that's n8n-specific
+
+Q: "Can this be made standalone?"
+
+ANSWER: YES, but requires significant refactoring
+  - Option 1 (CLEAN): 6-8 hours to abstract all dependencies into interfaces
+  - Option 2 (MINIMAL): 4-5 hours to remove i18n and simplify stores
+  - Option 3 (ACCEPT): Keep as n8n-specific library (0 hours)
+
+Q: "What dependencies should be removed?"
+
+ANSWER: None can be cleanly removed without losing functionality
+  - Alternative: Abstract them behind interfaces
+  - Then you can swap n8n stores for custom implementations
+
+================================================================================
+5. DOCUMENTATION CREATED
+================================================================================
+
+Three comprehensive documents have been generated:
+
+1. N8N_DEPENDENCIES_ANALYSIS.md (16KB)
+   - Full technical analysis of all dependencies
+   - Detailed code examples and usage patterns
+   - Recommendations for abstraction
+   - Type definition issues and solutions
+
+2. N8N_DEPENDENCIES_SUMMARY.md (5KB)
+   - Quick reference guide
+   - Decision matrix for different goals
+   - File-by-file impact assessment
+   - Critical vs. medium vs. low priority fixes
+
+3. DEPENDENCY_GRAPH.md (6KB)
+   - Visual dependency maps
+   - Flow diagrams showing data resolution paths
+   - File dependency tree
+   - Heat maps of store usage
+   - Abstraction opportunities shown visually
+
+4. This file (FINDINGS_SUMMARY.txt)
+   - Executive summary of all findings
+   - Critical files and their roles
+   - Direct answers to key questions
+
+================================================================================
+6. RECOMMENDATIONS
+================================================================================
+
+RECOMMENDED APPROACH: Hybrid Strategy
+─────────────────────────────────────
+
+Phase 1 (QUICK FIX - 2 hours):
+  1. Define missing types (TargetNodeParameterContext, Schema)
+  2. Complete store stub implementations
+  3. Fix TypeScript compilation errors
+  Result: Library compiles and runs (with n8n stubs)
+
+Phase 2 (MEDIUM EFFORT - 4-6 hours):
+  1. Create abstraction interface for workflow context
+  2. Implement dependency injection pattern
+  3. Make i18n pluggable with default English
+  Result: Library can work with custom implementations
+
+Phase 3 (FUTURE - As needed):
+  1. Connect real n8n stores (if integrating with n8n)
+  2. Add production translations
+  3. Optimize performance
+
+================================================================================
+7. IMPACT ASSESSMENT
+================================================================================
+
+FOR STANDALONE USE:
+  - Current Status: BROKEN (incomplete stubs)
+  - Effort to Fix: 6-8 hours (full abstraction) OR 2-3 hours (partial)
+  - Feasibility: HIGH (all dependencies are in userland code, not platform code)
+  - Value: HIGH (enables use outside n8n context)
+
+FOR N8N INTEGRATION:
+  - Current Status: BROKEN (incomplete stubs, type errors)
+  - Effort to Fix: 2-3 hours (complete stubs + types)
+  - Feasibility: VERY HIGH (mostly already extracted)
+  - Value: HIGH (enables this editor in n8n UI)
+
+FOR CURRENT FORM:
+  - Status: NOT VIABLE (doesn't work as-is)
+  - Recommendation: Pick one path above and commit to it
+
+================================================================================
+8. FILES REQUIRING CHANGES
+================================================================================
+
+To make standalone (full abstraction):
+  ✗ src/lib/codemirror-plugins/completions/utils.ts (120 lines)
+  ✗ src/lib/codemirror-plugins/completions/constants.ts (450 lines)
+  ✗ src/lib/codemirror-plugins/completions/dollar.completions.ts (150 lines)
+  ✗ src/lib/stores.ts (completely rewrite)
+  ✗ src/lib/i18n.ts (make pluggable)
+  ✗ src/types/workflow.ts (add missing types)
+  ✗ src/types/n8n-workflow.ts (add missing types)
+
+To make n8n-specific (complete stubs):
+  ✗ src/lib/stores.ts (fill in stub implementations)
+  ✗ src/types/workflow.ts (add Schema, TargetNodeParameterContext)
+  ✗ src/types/n8n-workflow.ts (ensure all types defined)
+  ~ src/lib/codemirror-plugins/ (mostly good, just needs context)
+
+================================================================================
+9. CONCLUSION
+================================================================================
+
+The codemirror-plugins directory contains NECESSARY n8n-specific dependencies:
+
+  1. N8N STORES are not "leftover" - they are CORE to the autocomplete system
+  2. I18N KEYS are extensive (775+) and tied to n8n's localization system  
+  3. TYPE IMPORTS are partially resolved but still reference n8n packages
+  4. ABSTRACTION is MISSING - the library directly uses stores without injection
+
+VERDICT: This library CANNOT be standalone without significant refactoring.
+         It WAS extracted from n8n but the extraction is INCOMPLETE.
+
+OPTIONS:
+  A) Complete the extraction to make it standalone (6-8 hours) ← RECOMMENDED
+  B) Accept it as n8n-specific and fill in stubs (2-3 hours)
+  C) Do nothing and keep it broken (0 hours)
+
+================================================================================
+END OF FINDINGS SUMMARY
+================================================================================
