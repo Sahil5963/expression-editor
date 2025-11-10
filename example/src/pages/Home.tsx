@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ExpressionEditor } from 'react-dynamic-expression-editor';
 import { ChevronRight, ChevronDown, GripVertical, Copy, Check } from 'lucide-react';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from './components/ui/resizable';
-import './DemoPage.css';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '../components/ui/resizable';
+import './Home.css';
 
-export const DemoPage: React.FC = () => {
+export const Home: React.FC = () => {
 	const mockData = {
 		message: {
 			content: 'Can you help me reset my password?',
@@ -314,10 +314,10 @@ export const DemoPage: React.FC = () => {
 								<li>Build complex expressions like <code>{'{{user.email}}'}</code></li>
 							</ul>
 						</div>
-					</main>
-				</ResizablePanel>
-			</ResizablePanelGroup>
+						</main>
+					</ResizablePanel>
+				</ResizablePanelGroup>
+			</div>
 		</div>
-	</div>
 	);
 };

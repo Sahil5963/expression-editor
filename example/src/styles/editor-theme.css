@@ -1,0 +1,280 @@
+/* Expression Editor & Autocomplete Theming - Using shadcn/ui variables */
+
+/* Map expression editor variables to shadcn color system */
+:root {
+  /* Expression Editor - Use shadcn color variables */
+  --expr-editor-bg: var(--background);
+  --expr-editor-bg-light: var(--card);
+  --expr-editor-text: var(--foreground);
+  --expr-editor-text-secondary: var(--muted-foreground);
+  --expr-editor-primary: var(--primary);
+  --expr-editor-caret: var(--primary);
+  --expr-editor-border: var(--border);
+  --expr-editor-radius: var(--radius);
+
+  /* Resolvable highlighting - Use chart colors from shadcn with opacity */
+  --expr-editor-resolvable-valid-fg: var(--chart-2);
+  --expr-editor-resolvable-valid-bg: color-mix(in srgb, var(--chart-2) 15%, transparent);
+  --expr-editor-resolvable-invalid-fg: var(--destructive);
+  --expr-editor-resolvable-invalid-bg: color-mix(in srgb, var(--destructive) 15%, transparent);
+  --expr-editor-resolvable-pending-fg: var(--chart-4);
+  --expr-editor-resolvable-pending-bg: color-mix(in srgb, var(--chart-4) 15%, transparent);
+  --expr-editor-resolvable-unresolved-fg: var(--chart-1);
+  --expr-editor-resolvable-unresolved-bg: color-mix(in srgb, var(--chart-1) 15%, transparent);
+}
+
+/* Expression Editor Component Styles */
+.expression-editor {
+  background: var(--expr-editor-bg);
+  border: 1px solid var(--expr-editor-border);
+  border-radius: var(--expr-editor-radius);
+  font-family: var(--font-family--monospace);
+  color: var(--expr-editor-text);
+}
+
+.expression-editor__input {
+  background: var(--expr-editor-bg-light);
+  border: 1px solid var(--expr-editor-border);
+  border-radius: var(--expr-editor-radius);
+  padding: var(--spacing--2xs);
+}
+
+/* CodeMirror Resolvable Highlighting */
+.cm-valid-resolvable {
+  color: var(--expr-editor-resolvable-valid-fg);
+  background-color: var(--expr-editor-resolvable-valid-bg);
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
+.cm-invalid-resolvable {
+  color: var(--expr-editor-resolvable-invalid-fg);
+  background-color: var(--expr-editor-resolvable-invalid-bg);
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
+.cm-pending-resolvable {
+  color: var(--expr-editor-resolvable-pending-fg);
+  background-color: var(--expr-editor-resolvable-pending-bg);
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
+.cm-unresolved-resolvable {
+  color: var(--expr-editor-resolvable-unresolved-fg);
+  background-color: var(--expr-editor-resolvable-unresolved-bg);
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
+/* CodeMirror Editor Customization */
+.cm-editor {
+  background: var(--expr-editor-bg);
+  color: var(--expr-editor-text);
+  border: 1px solid var(--expr-editor-border);
+  border-radius: var(--expr-editor-radius);
+}
+
+.cm-editor.cm-focused {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.cm-cursor {
+  border-left-color: var(--expr-editor-caret);
+}
+
+.cm-selectionBackground {
+  background-color: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+/* ========================================= */
+/* Autocomplete Dropdown Styling */
+/* ========================================= */
+
+/* Main autocomplete container */
+.cm-tooltip-autocomplete {
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius--lg);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  padding: 4px;
+  max-height: 360px;
+  min-width: 240px;
+  backdrop-filter: blur(20px);
+}
+
+/* Autocomplete list */
+.cm-tooltip-autocomplete ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+/* Individual completion items */
+.cm-tooltip-autocomplete li {
+  padding: 6px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  transition: background-color 0.12s ease-out;
+  font-size: var(--font-size--sm);
+  color: var(--popover-foreground);
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  background-color: transparent;
+  border-radius: 0;
+}
+
+/* Remove border from last item */
+.cm-tooltip-autocomplete li:last-child {
+  border-bottom: none;
+}
+
+/* Hover state */
+.cm-tooltip-autocomplete li:hover {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* Selected/active item */
+.cm-tooltip-autocomplete li[aria-selected="true"] {
+  background-color: var(--primary);
+  color: var(--foreground);
+}
+
+/* Completion label */
+.cm-completionLabel {
+  flex: 1;
+  font-weight: 500;
+  color: inherit;
+  font-family: var(--font-family--monospace);
+}
+
+/* Completion detail (type indicator) */
+.cm-completionDetail {
+  font-size: var(--font-size--2xs);
+  color: var(--muted-foreground);
+  background: var(--muted);
+  padding: 2px 8px;
+  border-radius: var(--radius--sm);
+  font-family: var(--font-family--monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: var(--font-weight--bold);
+}
+
+/* When selected, change detail color */
+.cm-tooltip-autocomplete li[aria-selected="true"] .cm-completionLabel {
+  color: var(--foreground);
+}
+
+.cm-tooltip-autocomplete li[aria-selected="true"] .cm-completionDetail {
+  background: color-mix(in srgb, var(--foreground) 20%, transparent);
+  color: var(--foreground);
+}
+
+/* Info tooltip - Clean, modern design */
+.cm-tooltip.cm-tooltip-autocomplete.cm-completionInfo,
+.cm-completionInfo,
+.cm-tooltip-autocomplete + .cm-tooltip {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius--lg);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  max-width: 380px;
+  min-width: 260px;
+  font-size: var(--font-size--xs);
+  line-height: var(--line-height--lg);
+  white-space: pre-wrap;
+  z-index: 1001;
+  font-family: var(--font-family);
+  backdrop-filter: blur(12px);
+}
+
+/* Additional selector for the info box content */
+.cm-completionInfo.cm-tooltip,
+.cm-tooltip.cm-completionInfo {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  padding: 0px;
+}
+.cm-tooltip.cm-completionInfo {
+  && {
+    background: var(--popover);
+    color: var(--popover-foreground);
+    padding: 0px;
+  }
+}
+
+.cm-completionInfo.cm-completionInfo-right {
+  && {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px;
+    margin-left: 4px;
+  }
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li {
+  && {
+    padding: 6px 8px;
+  }
+}
+
+/* Scrollbar styling - Modern minimal design */
+.cm-tooltip-autocomplete ul::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cm-tooltip-autocomplete ul::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: var(--radius);
+}
+
+.cm-tooltip-autocomplete ul::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius);
+  transition: background 0.2s;
+}
+
+.cm-tooltip-autocomplete ul::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Type-specific icons/colors */
+.cm-completionIcon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  border-radius: var(--radius--sm);
+  background: var(--accent);
+  font-size: 10px;
+}
+
+/* Section headers */
+.cm-completionSection {
+  padding: 8px 12px;
+  font-size: var(--font-size--3xs);
+  font-weight: var(--font-weight--bold);
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: transparent;
+  margin: 8px 0 4px 0;
+  border-bottom: 1px solid var(--border);
+}
