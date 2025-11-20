@@ -10,7 +10,6 @@ let mockData: IDataObject = {};
 
 export function setMockAutocompleteData(data: IDataObject) {
 	mockData = data;
-	console.log('📝 Custom autocomplete data set:', mockData);
 }
 
 function getNestedValue(obj: any, path: string): any {
@@ -79,7 +78,6 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 	if (word.from === word.to && !context.explicit) return null;
 
 	const text = word.text;
-	console.log('🔍 Autocomplete triggered for:', text);
 
 	// Empty or just starting - show all root variables
 	if (text === '' || context.explicit) {
@@ -91,7 +89,6 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 			};
 		});
 
-		console.log('✅ Showing root completions:', rootCompletions.map(c => c.label));
 
 		return {
 			from: word.from,
@@ -106,7 +103,6 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 		const path = parts.slice(1, -1).join('.'); // e.g., "address"
 		const incomplete = parts[parts.length - 1]; // Current typing
 
-		console.log('🔎 Nested lookup:', { rootKey, path, incomplete });
 
 		// Get the object we're completing from
 		let targetObj = mockData[rootKey];
@@ -115,10 +111,8 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 			targetObj = getNestedValue(targetObj, path);
 		}
 
-		console.log('📦 Target object:', targetObj);
 
 		if (!targetObj || typeof targetObj !== 'object') {
-			console.log('❌ No object found at path');
 			return null;
 		}
 
@@ -129,7 +123,6 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 			? completions.filter(c => c.label.toLowerCase().startsWith(incomplete.toLowerCase()))
 			: completions;
 
-		console.log('✅ Showing nested completions:', filtered.map(c => c.label));
 
 		if (filtered.length === 0) return null;
 
@@ -149,7 +142,6 @@ export function customDollarCompletions(context: CompletionContext): CompletionR
 				info: `Root variable: ${key}`,
 			}));
 
-		console.log('✅ Showing filtered root completions:', rootCompletions.map(c => c.label));
 
 		if (rootCompletions.length === 0) return null;
 

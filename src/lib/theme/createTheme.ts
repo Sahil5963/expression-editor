@@ -1,4 +1,5 @@
 import { EditorView } from '@codemirror/view';
+import type { Extension } from '@codemirror/state';
 import { defaultTheme } from './defaultTheme';
 import type { ThemeConfig } from './types';
 import { CSS_VARIABLES } from './types';
@@ -28,17 +29,15 @@ function cssVar(varName: string, fallback: string): string {
  * Creates a CodeMirror theme with CSS variable support
  * Theme priority: CSS Variables > userTheme prop > defaultTheme
  */
-export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: number; isReadOnly?: boolean }) {
+export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: number; isReadOnly?: boolean }): Extension[] {
 	const theme = mergeTheme(userTheme);
 	const { rows = 5, isReadOnly = false } = options || {};
 	const isSingleLine = rows === 1;
-	const maxHeight = isSingleLine ? 30 : rows * 22 + 8;
 
-	return EditorView.theme({
+	const themeExtension = EditorView.theme({
 		'&': {
 			backgroundColor: cssVar(CSS_VARIABLES.BACKGROUND, theme.colors.background),
-			maxHeight: `${maxHeight}px`,
-			minHeight: '30px',
+			height: '100%',
 			width: '100%',
 			fontSize: cssVar(CSS_VARIABLES.FONT_SIZE, theme.typography.fontSize),
 			padding: `0 0 0 ${theme.spacing['2xs']}`,
@@ -175,5 +174,5 @@ export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: nu
 	});
 
 	// Return both the theme and the resolvable highlighter style
-	return [theme, highlighter.resolvableStyle];
+	return [themeExtension, highlighter.resolvableStyle];
 }

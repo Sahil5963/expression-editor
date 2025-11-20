@@ -22,10 +22,17 @@ export interface UseExpressionEditorOptions {
 	autocompleteTelemetry?: { enabled: true; parameterPath: string };
 	isReadOnly?: boolean;
 	disableSearchDialog?: boolean;
+	enableDebugLogs?: boolean;
 	onDocChange?: (content: string) => void;
 	onFocus?: () => void;
 	onBlur?: () => void;
 	onSelectionChange?: (selection: SelectionRange) => void;
+}
+
+export interface SelectionInfo {
+	from: number;
+	to: number;
+	text: string;
 }
 
 export interface UseExpressionEditorReturn {
@@ -37,6 +44,9 @@ export interface UseExpressionEditorReturn {
 	readEditorValue: () => string;
 	setCursorPosition: (position: 'lastExpression' | number) => void;
 	focus: () => void;
+	getSelection: () => SelectionInfo;
+	insertText: (text: string, from?: number, to?: number) => void;
+	setEditorSelection: (from: number, to?: number) => void;
 }
 
 export const useExpressionEditor = (
@@ -48,6 +58,7 @@ export const useExpressionEditor = (
 		additionalData = {},
 		isReadOnly = false,
 		disableSearchDialog = false,
+		enableDebugLogs = false,
 		onDocChange,
 		onFocus,
 		onBlur,
@@ -82,9 +93,11 @@ export const useExpressionEditor = (
 		parseCountRef.current++;
 		const parseId = parseCountRef.current;
 
-		console.group(`🔍 [Parse #${parseId}] parseAndHighlight`);
-		console.log('📝 Text:', text);
-		console.log('📚 Available data keys:', Object.keys(additionalData));
+		if (enableDebugLogs) {
+			console.group(`🔍 [Parse #${parseId}] parseAndHighlight`);
+			console.log('📝 Text:', text);
+			console.log('📚 Available data keys:', Object.keys(additionalData));
+		}
 
 		const tree = syntaxTree(view.state);
 		const resolvables: Segment[] = [];
@@ -104,7 +117,9 @@ export const useExpressionEditor = (
 					// Validate against data
 					const pathExists = validatePath(content, additionalData);
 					state = pathExists ? 'valid' : 'unresolved';
-					console.log(`🔎 Validating "${content}": ${pathExists ? '✅ exists' : '❌ not found in data'}`);
+					if (enableDebugLogs) {
+						console.log(`🔎 Validating "${content}": ${pathExists ? '✅ exists' : '❌ not found in data'}`);
+					}
 				}
 
 				resolvables.push({
@@ -114,12 +129,16 @@ export const useExpressionEditor = (
 					state,
 				} as Segment);
 
-				console.log(`✅ Found resolvable [${from}-${to}]: "${content}" (state: ${state})`);
+				if (enableDebugLogs) {
+					console.log(`✅ Found resolvable [${from}-${to}]: "${content}" (state: ${state})`);
+				}
 			}
 		});
 
-		console.log(`📊 Total resolvables found: ${resolvables.length}`);
-		console.log('📦 Previous segments:', previousSegmentsRef.current.length);
+		if (enableDebugLogs) {
+			console.log(`📊 Total resolvables found: ${resolvables.length}`);
+			console.log('📦 Previous segments:', previousSegmentsRef.current.length);
+		}
 
 		setSegments({ display: resolvables });
 
@@ -129,22 +148,30 @@ export const useExpressionEditor = (
 				...seg,
 				kind: 'plaintext' as const,
 			}));
-			console.log(`🧹 Removing ${plaintext.length} old highlights:`, plaintext);
+			if (enableDebugLogs) {
+				console.log(`🧹 Removing ${plaintext.length} old highlights:`, plaintext);
+			}
 			highlighter.removeColor(view, plaintext as any);
 		}
 
 		// Apply new highlighting
 		if (resolvables.length > 0) {
-			console.log(`🎨 Applying ${resolvables.length} new highlights:`, resolvables);
+			if (enableDebugLogs) {
+				console.log(`🎨 Applying ${resolvables.length} new highlights:`, resolvables);
+			}
 			highlighter.addColor(view, resolvables as any);
 		} else {
-			console.log('⚠️ No resolvables to highlight');
+			if (enableDebugLogs) {
+				console.log('⚠️ No resolvables to highlight');
+			}
 		}
 
 		// Update the previous segments reference
 		previousSegmentsRef.current = resolvables;
-		console.log('💾 Updated previousSegments cache');
-		console.groupEnd();
+		if (enableDebugLogs) {
+			console.log('💾 Updated previousSegments cache');
+			console.groupEnd();
+		}
 	}, [additionalData, validatePath]);
 
 	const readEditorValue = useCallback((): string => {
@@ -168,6 +195,43 @@ export const useExpressionEditor = (
 		editor?.focus();
 		setHasFocus(true);
 	}, [editor]);
+
+	const getSelection = useCallback((): SelectionInfo => {
+		if (!editor) {
+			return { from: 0, to: 0, text: '' };
+		}
+		const { from, to } = editor.state.selection.main;
+		const text = editor.state.doc.sliceString(from, to);
+		return { from, to, text };
+	}, [editor]);
+
+	const insertText = useCallback(
+		(text: string, from?: number, to?: number) => {
+			if (!editor) return;
+
+			const selection = editor.state.selection.main;
+			const insertFrom = from ?? selection.from;
+			const insertTo = to ?? selection.to;
+
+			editor.dispatch({
+				changes: { from: insertFrom, to: insertTo, insert: text },
+				selection: EditorSelection.cursor(insertFrom + text.length),
+			});
+		},
+		[editor],
+	);
+
+	const setEditorSelection = useCallback(
+		(from: number, to?: number) => {
+			if (!editor) return;
+
+			const selectionTo = to ?? from;
+			editor.dispatch({
+				selection: EditorSelection.range(from, selectionTo),
+			});
+		},
+		[editor],
+	);
 
 	// Initialize editor
 	useEffect(() => {
@@ -224,7 +288,9 @@ export const useExpressionEditor = (
 	useEffect(() => {
 		if (editor) {
 			const content = editor.state.doc.toString();
-			console.log('📊 Data changed, re-validating highlighting...');
+			if (enableDebugLogs) {
+				console.log('📊 Data changed, re-validating highlighting...');
+			}
 			parseAndHighlight(content, editor);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -299,5 +365,8 @@ export const useExpressionEditor = (
 		readEditorValue,
 		setCursorPosition,
 		focus,
+		getSelection,
+		insertText,
+		setEditorSelection,
 	};
 };

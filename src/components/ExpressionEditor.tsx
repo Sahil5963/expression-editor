@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useImperativeHandle, forwardRef } from 'react';
-import { EditorView, keymap, dropCursor } from '@codemirror/view';
+import { EditorView, keymap, dropCursor, placeholder as placeholderExt } from '@codemirror/view';
 import { EditorState, Prec, type SelectionRange } from '@codemirror/state';
 import { history } from '@codemirror/commands';
 import { autocompletion } from '@codemirror/autocomplete';
@@ -66,6 +66,24 @@ export interface ExpressionEditorProps {
 
 	/** Parameter path for telemetry */
 	path?: string;
+
+	/** Enable debug console logs for development */
+	enableDebugLogs?: boolean;
+
+	/** Disable automatic '=' prefix for non-expression usage */
+	disableExpressionPrefix?: boolean;
+}
+
+/**
+ * Selection info returned by getSelection()
+ */
+export interface SelectionInfo {
+	/** Start position of selection */
+	from: number;
+	/** End position of selection */
+	to: number;
+	/** Selected text content */
+	text: string;
 }
 
 /**
@@ -80,6 +98,24 @@ export interface ExpressionEditorRef {
 
 	/** Handle drop event programmatically */
 	handleDrop: (event: React.DragEvent) => void;
+
+	/** Get current selection info */
+	getSelection: () => SelectionInfo;
+
+	/**
+	 * Insert or replace text in the editor
+	 * @param text Text to insert
+	 * @param from Optional start position (defaults to selection start)
+	 * @param to Optional end position (defaults to selection end)
+	 */
+	insertText: (text: string, from?: number, to?: number) => void;
+
+	/**
+	 * Set selection range
+	 * @param from Start position
+	 * @param to End position (if same as from, sets cursor position)
+	 */
+	setSelection: (from: number, to?: number) => void;
 }
 
 /**
@@ -131,6 +167,8 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 			onBlur,
 			onSelectionChange,
 			path = 'expression',
+			enableDebugLogs = false,
+			disableExpressionPrefix = false,
 		} = props;
 
 		// Create theme with options (returns array of [theme, highlighter])
@@ -151,12 +189,17 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 			const isSingleLine = rows === 1;
 
 			const exts = [
-				...(Array.isArray(editorTheme) ? editorTheme : [editorTheme]), // Spread the array [theme, highlighter]
+				...editorTheme, // Spread the theme extensions array
 				Prec.highest(keymap.of(editorKeymap)),
 				n8nLang(),
 				history(),
 				expressionCloseBrackets(),
 			];
+
+			// Add placeholder if provided
+			if (placeholder) {
+				exts.push(placeholderExt(placeholder));
+			}
 
 			// Block Enter key for single-line inputs
 			if (isSingleLine) {
@@ -225,7 +268,7 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 			}
 
 			return exts;
-		}, [editorTheme, rows, autocompleteFn, enableDragDrop, onDrop]);
+		}, [editorTheme, rows, autocompleteFn, enableDragDrop, onDrop, placeholder]);
 
 		const {
 			editorRef,
@@ -236,16 +279,20 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 			readEditorValue,
 			setCursorPosition,
 			focus,
+			getSelection,
+			insertText,
+			setEditorSelection,
 		} = useExpressionEditor({
-			value: value.replace(/^=/, ''), // Remove leading '=' if present
+			value: disableExpressionPrefix ? value : value.replace(/^=/, ''), // Conditionally remove '=' prefix
 			extensions,
 			additionalData: autocompleteData || {},
 			isReadOnly: readOnly,
 			autocompleteTelemetry: { enabled: true, parameterPath: path },
+			enableDebugLogs,
 			onDocChange: (content: string) => {
 				// Emit update on every document change for real-time sync
 				onChange({
-					value: '=' + content,
+					value: disableExpressionPrefix ? content : '=' + content, // Conditionally add '=' prefix
 					segments: segments.display,
 				});
 			},
@@ -313,13 +360,20 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 				focus,
 				setCursorPosition,
 				handleDrop,
+				getSelection,
+				insertText,
+				setSelection: setEditorSelection,
 			}),
-			[focus, setCursorPosition, handleDrop],
+			[focus, setCursorPosition, handleDrop, getSelection, insertText, setEditorSelection],
 		);
 
-		// Combine styles
+		// Merge flex container styles with user styles
 		const containerStyle = useMemo(() => {
-			const baseStyle: React.CSSProperties = { ...style };
+			const baseStyle: React.CSSProperties = {
+				display: 'flex',
+				flexDirection: 'column',
+				...style, // User styles override/extend defaults
+			};
 			if (maxHeight) {
 				baseStyle.maxHeight = typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight;
 			}
@@ -329,7 +383,7 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 		return (
 			<div
 				ref={editorRef}
-				className={`${EDITOR_CLASS_NAMES.ROOT} ${className}`}
+				className={`${EDITOR_CLASS_NAMES.ROOT} ${className}`.trim()}
 				style={containerStyle}
 				onDragOver={handleDragOver}
 				onDrop={handleDrop}

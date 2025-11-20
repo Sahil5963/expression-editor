@@ -6,7 +6,6 @@ import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
 
 // Stub for Sentry - just log to console in standalone mode
 const captureException = (error: Error) => {
-	console.error('[Error]', error);
 };
 
 import type {
@@ -86,7 +85,6 @@ const coloringStateEffects = {
 const coloringStateField = StateField.define<DecorationSet>({
 	provide: (stateField) => EditorView.decorations.from(stateField),
 	create() {
-		console.log('🎨 [StateField] Creating initial decoration set');
 		return Decoration.none;
 	},
 	update(colorings, transaction) {
@@ -94,10 +92,6 @@ const coloringStateField = StateField.define<DecorationSet>({
 			const initialSize = colorings.size;
 			colorings = colorings.map(transaction.changes); // recalculate positions for new doc
 
-			console.group('🔄 [StateField] Update');
-			console.log(`📏 Initial decorations: ${initialSize}`);
-			console.log(`📝 Doc changed: ${transaction.docChanged}`);
-			console.log(`⚡ Effects count: ${transaction.effects.length}`);
 
 			for (const txEffect of transaction.effects) {
 				if (txEffect.is(coloringStateEffects.removeColorEffect)) {
@@ -105,7 +99,6 @@ const coloringStateField = StateField.define<DecorationSet>({
 					colorings = colorings.update({
 						filter: (from, to) => txEffect.value.from !== from && txEffect.value.to !== to,
 					});
-					console.log(`🗑️ Remove effect [${txEffect.value.from}-${txEffect.value.to}]: ${beforeSize} -> ${colorings.size} decorations`);
 				}
 
 				if (txEffect.is(coloringStateEffects.addColorEffect)) {
@@ -118,21 +111,16 @@ const coloringStateField = StateField.define<DecorationSet>({
 					const decoration = resolvableStateToDecoration[txEffect.value.state ?? 'pending'];
 
 					if (txEffect.value.from === 0 && txEffect.value.to === 0) {
-						console.log('⏭️ Skipping [0-0] decoration');
 						continue;
 					}
 
 					colorings = colorings.update({
 						add: [decoration.range(txEffect.value.from, txEffect.value.to)],
 					});
-					console.log(`➕ Add effect [${txEffect.value.from}-${txEffect.value.to}] (${txEffect.value.state}): ${beforeSize} -> ${colorings.size} decorations`);
 				}
 			}
 
-			console.log(`📊 Final decorations: ${colorings.size}`);
-			console.groupEnd();
 		} catch (error) {
-			console.error('❌ [StateField] Error:', error);
 			captureException(error);
 		}
 
@@ -141,57 +129,41 @@ const coloringStateField = StateField.define<DecorationSet>({
 });
 
 function addColor(view: EditorView, segments: Resolvable[]) {
-	console.group('🎨 [addColor] Adding highlights');
-	console.log(`📦 Segments to add: ${segments.length}`, segments);
 
 	const effects: Array<StateEffect<unknown>> = segments.map(({ from, to, kind, state }) =>
 		coloringStateEffects.addColorEffect.of({ from, to, kind, state }),
 	);
 
 	if (effects.length === 0) {
-		console.log('⚠️ No effects to apply');
-		console.groupEnd();
 		return;
 	}
 
 	const hasField = !!view.state.field(coloringStateField, false);
-	console.log(`📋 StateField exists: ${hasField}`);
 
 	if (!hasField) {
-		console.log('➕ Adding StateField config');
 		effects.push(StateEffect.appendConfig.of([coloringStateField, resolvablesTheme]));
 	}
 
-	console.log(`⚡ Dispatching ${effects.length} effects`);
 	view.dispatch({ effects });
-	console.groupEnd();
 }
 
 function removeColor(view: EditorView, segments: Plaintext[]) {
-	console.group('🗑️ [removeColor] Removing highlights');
-	console.log(`📦 Segments to remove: ${segments.length}`, segments);
 
 	const effects: Array<StateEffect<unknown>> = segments.map(({ from, to }) =>
 		coloringStateEffects.removeColorEffect.of({ from, to }),
 	);
 
 	if (effects.length === 0) {
-		console.log('⚠️ No effects to apply');
-		console.groupEnd();
 		return;
 	}
 
 	const hasField = !!view.state.field(coloringStateField, false);
-	console.log(`📋 StateField exists: ${hasField}`);
 
 	if (!hasField) {
-		console.log('➕ Adding StateField config');
 		effects.push(StateEffect.appendConfig.of([coloringStateField, resolvablesTheme]));
 	}
 
-	console.log(`⚡ Dispatching ${effects.length} effects`);
 	view.dispatch({ effects });
-	console.groupEnd();
 }
 
 const resolvableStyle = syntaxHighlighting(

@@ -22,7 +22,11 @@
 
 // Main component
 export { ExpressionEditor } from './components/ExpressionEditor';
-export type { ExpressionEditorProps, ExpressionEditorRef } from './components/ExpressionEditor';
+export type {
+	ExpressionEditorProps,
+	ExpressionEditorRef,
+	SelectionInfo,
+} from './components/ExpressionEditor';
 
 // Hooks
 export { useExpressionEditor } from './lib/hooks/useExpressionEditor';
