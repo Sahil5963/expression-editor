@@ -119,6 +119,8 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .feature-card {
