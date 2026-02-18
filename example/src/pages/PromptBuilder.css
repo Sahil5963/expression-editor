@@ -97,7 +97,7 @@
 .prompt-data-panel .json-tree {
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
   padding: 1rem 1.5rem;
   font-family: "Monaco", "Menlo", monospace;
   font-size: 0.75rem;
