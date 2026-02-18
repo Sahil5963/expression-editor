@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useImperativeHandle, forwardRef } from 'react';
+import React, { useMemo, useCallback, useImperativeHandle, forwardRef, useRef, useEffect } from 'react';
 import { EditorView, keymap, dropCursor, placeholder as placeholderExt } from '@codemirror/view';
 import { EditorState, Prec, type SelectionRange } from '@codemirror/state';
 import { history } from '@codemirror/commands';
@@ -343,7 +343,7 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 				if (pos !== null) {
 					// Call custom onDrop callback if provided
 					if (onDropRef.current) {
-						onDrop(dragValue, pos);
+						onDropRef.current(dragValue, pos);
 					}
 
 					// Insert the value at the drop position
