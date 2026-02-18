@@ -184,8 +184,14 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 			return null;
 		}, [autocompleteProvider, autocompleteData]);
 
-		// Create custom extensions
-		const extensions = useMemo(() => {
+	// Ref for onDrop to prevent extensions recreation on every render
+	const onDropRef = useRef(onDrop);
+	useEffect(() => {
+		onDropRef.current = onDrop;
+	}, [onDrop]);
+
+	// Create custom extensions
+	const extensions = useMemo(() => {
 			const isSingleLine = rows === 1;
 
 			const exts = [
@@ -249,8 +255,8 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 
 							if (pos !== null) {
 								// Call custom onDrop callback if provided
-								if (onDrop) {
-									onDrop(value, pos);
+								if (onDropRef.current) {
+									onDropRef.current(value, pos);
 								}
 
 								// Insert the value at the drop position
@@ -268,7 +274,7 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 			}
 
 			return exts;
-		}, [editorTheme, rows, autocompleteFn, enableDragDrop, onDrop, placeholder]);
+		}, [editorTheme, rows, autocompleteFn, enableDragDrop, placeholder]);
 
 		const {
 			editorRef,
@@ -336,7 +342,7 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 
 				if (pos !== null) {
 					// Call custom onDrop callback if provided
-					if (onDrop) {
+					if (onDropRef.current) {
 						onDrop(dragValue, pos);
 					}
 
@@ -350,7 +356,7 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 					setTimeout(() => editor.focus());
 				}
 			},
-			[editor, enableDragDrop, onDrop],
+			[editor, enableDragDrop],
 		);
 
 		// Expose methods to parent via ref
