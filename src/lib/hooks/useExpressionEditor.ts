@@ -2,7 +2,7 @@
  * React hook for Expression Editor
  * Converted from Vue composable to React hook
  */
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useLayoutEffect } from 'react';
 import {
 	EditorSelection,
 	EditorState,
@@ -72,6 +72,21 @@ export const useExpressionEditor = (
 	const [selection, setSelection] = useState<SelectionRange>(EditorSelection.cursor(0));
 	const previousSegmentsRef = useRef<Segment[]>([]);
 	const parseCountRef = useRef(0);
+
+	// Refs to always hold the latest callbacks — prevents stale closures in the editor listener
+	const onDocChangeRef = useRef(onDocChange);
+	const onFocusRef = useRef(onFocus);
+	const onBlurRef = useRef(onBlur);
+	const onSelectionChangeRef = useRef(onSelectionChange);
+	const parseAndHighlightRef = useRef<(text: string, view: EditorView) => void>();
+
+	// Keep refs up to date after every render without re-running effects
+	useLayoutEffect(() => {
+		onDocChangeRef.current = onDocChange;
+		onFocusRef.current = onFocus;
+		onBlurRef.current = onBlur;
+		onSelectionChangeRef.current = onSelectionChange;
+	});
 
 	// Helper to validate if a variable path exists in data
 	const validatePath = useCallback((path: string, data: IDataObject): boolean => {
@@ -174,6 +189,11 @@ export const useExpressionEditor = (
 		}
 	}, [additionalData, validatePath]);
 
+	// Keep parseAndHighlight ref up to date
+	useEffect(() => {
+		parseAndHighlightRef.current = parseAndHighlight;
+	}, [parseAndHighlight]);
+
 	const readEditorValue = useCallback((): string => {
 		return editor?.state.doc.toString() || '';
 	}, [editor]);
@@ -244,22 +264,22 @@ export const useExpressionEditor = (
 				EditorView.updateListener.of((update) => {
 					if (update.selectionSet) {
 						setSelection(update.state.selection.main);
-						onSelectionChange?.(update.state.selection.main);
+						onSelectionChangeRef.current?.(update.state.selection.main);
 					}
 					if (update.focusChanged) {
 						const newHasFocus = update.view.hasFocus;
 						setHasFocus(newHasFocus);
 						if (newHasFocus) {
-							onFocus?.();
+							onFocusRef.current?.();
 						} else {
-							onBlur?.();
+							onBlurRef.current?.();
 						}
 					}
 					if (update.docChanged) {
 						const content = update.state.doc.toString();
-						parseAndHighlight(content, update.view);
+						parseAndHighlightRef.current?.(content, update.view);
 						// Notify parent of content changes
-						onDocChange?.(content);
+						onDocChangeRef.current?.(content);
 					}
 				}),
 				EditorState.readOnly.of(isReadOnly),
@@ -325,21 +345,21 @@ export const useExpressionEditor = (
 					EditorView.updateListener.of((update) => {
 						if (update.selectionSet) {
 							setSelection(update.state.selection.main);
-							onSelectionChange?.(update.state.selection.main);
+							onSelectionChangeRef.current?.(update.state.selection.main);
 						}
 						if (update.focusChanged) {
 							const newHasFocus = update.view.hasFocus;
 							setHasFocus(newHasFocus);
 							if (newHasFocus) {
-								onFocus?.();
+								onFocusRef.current?.();
 							} else {
-								onBlur?.();
+								onBlurRef.current?.();
 							}
 						}
 						if (update.docChanged) {
 							const content = update.state.doc.toString();
-							parseAndHighlight(content, update.view);
-							onDocChange?.(content);
+							parseAndHighlightRef.current?.(content, update.view);
+							onDocChangeRef.current?.(content);
 						}
 					}),
 					EditorState.readOnly.of(isReadOnly),
