@@ -43,8 +43,26 @@ export interface ExpressionEditorProps {
 	/** Inline styles */
 	style?: React.CSSProperties;
 
-	/** Number of rows (1 for single-line) */
+	/**
+	 * Strictly pin the editor to exactly N rows — no growing or shrinking.
+	 * rows=1 also blocks Enter and hides overflow (single-line mode).
+	 * Takes priority over minRows/maxRows when set.
+	 */
 	rows?: number;
+
+	/**
+	 * Minimum number of rows. Editor starts at this height and grows as content is added.
+	 * Combine with maxRows to cap growth.
+	 * Defaults to 5 when neither rows nor minRows is provided.
+	 */
+	minRows?: number;
+
+	/**
+	 * Maximum number of rows. Editor scrolls once content exceeds this height.
+	 * Only applies in auto-grow mode (i.e. when rows is not set).
+	 * Defaults to 10.
+	 */
+	maxRows?: number;
 
 	/** Maximum height (CSS value) */
 	maxHeight?: string | number;
@@ -159,7 +177,9 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 			onDrop,
 			className = '',
 			style = {},
-			rows = 5,
+			rows,
+			minRows,
+			maxRows,
 			maxHeight,
 			readOnly = false,
 			placeholder,
@@ -171,10 +191,9 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 			disableExpressionPrefix = false,
 		} = props;
 
-		// Create theme with options (returns array of [theme, highlighter])
 		const editorTheme = useMemo(
-			() => createEditorTheme(theme, { rows, isReadOnly: readOnly }),
-			[theme, rows, readOnly],
+			() => createEditorTheme(theme, { rows, minRows, maxRows, isReadOnly: readOnly }),
+			[theme, rows, minRows, maxRows, readOnly],
 		);
 
 		// Create autocomplete provider
@@ -192,6 +211,7 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 
 	// Create custom extensions
 	const extensions = useMemo(() => {
+			// single-line only applies to rows=1 (strict mode); minRows/maxRows are always multi-line
 			const isSingleLine = rows === 1;
 
 			const exts = [
@@ -207,17 +227,22 @@ export const ExpressionEditor = forwardRef<ExpressionEditorRef, ExpressionEditor
 				exts.push(placeholderExt(placeholder));
 			}
 
-			// Block Enter key for single-line inputs
+			// Single-line mode: block Enter key and strip newlines from any source (paste, drop, etc.)
 			if (isSingleLine) {
 				exts.push(
 					Prec.highest(
-						keymap.of([
-							{
-								key: 'Enter',
-								run: () => true, // Block Enter key
-							},
-						]),
+						keymap.of([{ key: 'Enter', run: () => true }]),
 					),
+					EditorState.transactionFilter.of((tr) => {
+						if (!tr.docChanged) return tr;
+						const newText = tr.newDoc.toString();
+						if (!newText.includes('\n')) return tr;
+						const cleaned = newText.replace(/\n/g, '');
+						return tr.startState.update({
+							changes: [{ from: 0, to: tr.startState.doc.length, insert: cleaned }],
+							selection: { anchor: Math.min(tr.selection.main.anchor, cleaned.length) },
+						});
+					}),
 				);
 			} else {
 				// Only enable line wrapping for multi-line inputs

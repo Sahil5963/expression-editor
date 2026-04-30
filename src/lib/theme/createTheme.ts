@@ -5,9 +5,6 @@ import type { ThemeConfig } from './types';
 import { CSS_VARIABLES } from './types';
 import { highlighter } from '@/lib/codemirror-plugins/resolvableHighlighter';
 
-/**
- * Merges user theme with default theme
- */
 function mergeTheme(userTheme?: ThemeConfig): Required<ThemeConfig> {
 	return {
 		colors: { ...defaultTheme.colors, ...userTheme?.colors },
@@ -17,27 +14,51 @@ function mergeTheme(userTheme?: ThemeConfig): Required<ThemeConfig> {
 	};
 }
 
-/**
- * Creates CSS variable string with fallback
- * Example: var(--expr-editor-bg, #1a202c)
- */
 function cssVar(varName: string, fallback: string): string {
 	return `var(${varName}, ${fallback})`;
 }
 
 /**
- * Creates a CodeMirror theme with CSS variable support
+ * Creates a CodeMirror theme with CSS variable support.
+ *
+ * Sizing modes (mutually exclusive; rows takes priority):
+ *   rows    — strictly pinned to N rows; rows=1 also hides overflow and blocks Enter
+ *   minRows — auto-grow from N rows; combine with maxRows to cap growth
+ *   maxRows — caps auto-grow height; implies minRows=1 if minRows is not set
+ *
+ * Defaults to minRows=5 (auto-grow) when nothing is specified.
+ *
  * Theme priority: CSS Variables > userTheme prop > defaultTheme
  */
-export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: number; isReadOnly?: boolean }): Extension[] {
+export function createEditorTheme(
+	userTheme?: ThemeConfig,
+	options?: { rows?: number; minRows?: number; maxRows?: number; isReadOnly?: boolean },
+): Extension[] {
 	const theme = mergeTheme(userTheme);
-	const { rows = 5, isReadOnly = false } = options || {};
-	const isSingleLine = rows === 1;
+	const { rows, minRows, maxRows, isReadOnly = false } = options || {};
+
+	const lineHeightPx = parseFloat(theme.typography.fontSize) * parseFloat(theme.typography.lineHeight);
+	const rowHeight = Math.ceil(lineHeightPx) + 2;
+
+	const isStrictMode = rows !== undefined;
+	let minContentHeight: number;
+	let maxContentHeight: number | undefined;
+	let isSingleLine = false;
+
+	if (isStrictMode) {
+		const safeRows = Math.max(1, rows!);
+		isSingleLine = safeRows === 1;
+		minContentHeight = safeRows * rowHeight + 8;
+	} else {
+		const safeMin = Math.max(1, minRows ?? 5);
+		const safeMax = Math.max(safeMin, maxRows ?? 10);
+		minContentHeight = safeMin * rowHeight + 8;
+		maxContentHeight = safeMax * rowHeight + 8;
+	}
 
 	const themeExtension = EditorView.theme({
 		'&': {
 			backgroundColor: cssVar(CSS_VARIABLES.BACKGROUND, theme.colors.background),
-			height: '100%',
 			width: '100%',
 			fontSize: cssVar(CSS_VARIABLES.FONT_SIZE, theme.typography.fontSize),
 			padding: `0 0 0 ${theme.spacing['2xs']}`,
@@ -45,7 +66,13 @@ export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: nu
 			borderStyle: theme.border.style,
 			borderColor: cssVar(CSS_VARIABLES.BORDER_COLOR, theme.colors.border),
 			borderRadius: cssVar(CSS_VARIABLES.BORDER_RADIUS, theme.border.radius),
-			...(isSingleLine ? { overflow: 'hidden' } : {}),
+			...(isStrictMode
+				? {
+					height: `${minContentHeight}px`,
+					minHeight: `${minContentHeight}px`,
+					...(isSingleLine ? { overflow: 'hidden' } : {}),
+				}
+				: { height: '100%' }),
 		},
 
 		'&.cm-focused': {
@@ -54,8 +81,10 @@ export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: nu
 
 		'.cm-content': {
 			fontFamily: cssVar(CSS_VARIABLES.FONT_FAMILY, theme.typography.fontFamilyMono),
+			fontSize: cssVar(CSS_VARIABLES.FONT_SIZE, theme.typography.fontSize),
 			color: cssVar(CSS_VARIABLES.TEXT, theme.colors.text),
 			caretColor: isReadOnly ? 'transparent' : cssVar(CSS_VARIABLES.CARET, theme.colors.caretColor),
+			minHeight: `${minContentHeight}px`,
 		},
 
 		'.cm-line': {
@@ -68,7 +97,27 @@ export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: nu
 
 		'.cm-scroller': {
 			lineHeight: cssVar(CSS_VARIABLES.LINE_HEIGHT, theme.typography.lineHeight),
-			...(isSingleLine ? { overflow: 'hidden !important' } : {}),
+			// strict single-line: hide all overflow
+			...(isSingleLine
+				? {
+					overflow: 'hidden !important',
+					height: `${minContentHeight}px`,
+					maxHeight: `${minContentHeight}px`,
+				}
+				// strict multi-row: fixed height, content scrollable
+				: isStrictMode
+				? {
+					overflow: 'auto',
+					height: `${minContentHeight}px`,
+					maxHeight: `${minContentHeight}px`,
+				}
+				// auto-grow with maxRows: scrollable once ceiling is hit
+				: maxContentHeight !== undefined
+				? {
+					overflow: 'auto',
+					maxHeight: `${maxContentHeight}px`,
+				}
+				: {}),
 		},
 
 		'.cm-lineWrapping': {
@@ -119,7 +168,7 @@ export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: nu
 			borderRadius: theme.border.radius,
 			boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
 			fontFamily: theme.typography.fontFamily,
-			overflow: 'visible !important', // Allow info tooltip to show outside
+			overflow: 'visible !important',
 			'& > ul': {
 				maxHeight: '300px',
 				overflowY: 'auto',
@@ -163,7 +212,6 @@ export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: nu
 			wordWrap: 'break-word',
 		},
 
-		// Tooltip styles
 		'.cm-tooltip': {
 			backgroundColor: cssVar(CSS_VARIABLES.AUTOCOMPLETE_BG, theme.colors.autocompleteBackground),
 			border: `${theme.border.width} ${theme.border.style} ${cssVar(CSS_VARIABLES.AUTOCOMPLETE_BORDER, theme.colors.autocompleteBorder)}`,
@@ -173,6 +221,5 @@ export function createEditorTheme(userTheme?: ThemeConfig, options?: { rows?: nu
 		},
 	});
 
-	// Return both the theme and the resolvable highlighter style
 	return [themeExtension, highlighter.resolvableStyle];
 }

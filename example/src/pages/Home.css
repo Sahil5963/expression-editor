@@ -516,7 +516,7 @@
   margin-bottom: 0;
 }
 
-.cm-editor {
+.demo-page .cm-editor {
   background: transparent;
   padding: 1rem 1.25rem;
   min-height: 10rem;

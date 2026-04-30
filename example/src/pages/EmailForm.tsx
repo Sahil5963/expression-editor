@@ -173,7 +173,7 @@ export const EmailForm: React.FC = () => {
 									value={formData.subject}
 									onChange={(data) => setFormData({ ...formData, subject: data.value })}
 									autocompleteData={autocompleteData}
-									rows={1}
+									maxRows={10}
 									placeholder="e.g., Hello {{user.name}}!"
 									enableDragDrop={true}
 								/>
@@ -235,7 +235,8 @@ export const EmailForm: React.FC = () => {
 									value={formData.body}
 									onChange={(data) => setFormData({ ...formData, body: data.value })}
 									autocompleteData={autocompleteData}
-									rows={6}
+									minRows={4}
+									maxRows={12}
 									placeholder="Enter email body..."
 									enableDragDrop={true}
 								/>
@@ -256,8 +257,8 @@ export const EmailForm: React.FC = () => {
 							<ul className="email-info-list">
 								<li>Drag any variable from the left panel into any form field</li>
 								<li>Type <code>{'{{'}</code> to trigger autocomplete</li>
-								<li>Single-line fields (<code>rows=1</code>) for subject, name, email</li>
-								<li>Multi-line body field (<code>rows=6</code>) supports Enter key and wrapping</li>
+								<li>Single-line fields (<code>rows=1</code>) — strictly pinned, Enter blocked</li>
+								<li>Body uses <code>minRows=4 maxRows=12</code> — grows with content, scrolls past 12 rows</li>
 								<li>Watch the "Current Field Values" section update in real-time</li>
 							</ul>
 						</div>
