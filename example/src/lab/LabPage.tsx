@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ExpressionPlayground } from './ExpressionPlayground';
 import { ThemedExamples } from './ThemedExamples';
+import { FocusTests } from './FocusTests';
 import { ArrowLeft } from 'lucide-react';
 
 export const LabPage: React.FC = () => {
-	const [activeTab, setActiveTab] = useState<'playground' | 'themed'>('playground');
+	const [activeTab, setActiveTab] = useState<'playground' | 'themed' | 'focus'>('playground');
 
 	return (
 		<div className="min-h-screen bg-gray-50">
@@ -41,12 +42,28 @@ export const LabPage: React.FC = () => {
 							>
 								🎨 Themed Examples
 							</button>
+							<button
+								onClick={() => setActiveTab('focus')}
+								className={`px-4 py-2 rounded-lg font-medium transition ${
+									activeTab === 'focus'
+										? 'bg-purple-600 text-white'
+										: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+								}`}
+							>
+								🎯 Focus Tests
+							</button>
 						</div>
 					</div>
 				</div>
 			</nav>
 
-			{activeTab === 'playground' ? <ExpressionPlayground /> : <ThemedExamples />}
+			{activeTab === 'playground' ? (
+				<ExpressionPlayground />
+			) : activeTab === 'themed' ? (
+				<ThemedExamples />
+			) : (
+				<FocusTests />
+			)}
 		</div>
 	);
 };
